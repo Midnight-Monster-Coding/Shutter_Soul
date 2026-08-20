@@ -70,9 +70,9 @@ Shutter_Soul/
 │   └── ranking.html                # Global live leaderboard & monthly standings
 ├── .gitignore
 ├── firebase.json                   # Firebase deployment configuration
-└── README.md
+└── README.md 
 
-🚀 Getting Started
+##🚀 Getting Started
 Prerequisites
 A modern web browser supporting WebRTC and ES6 JavaScript.
 
