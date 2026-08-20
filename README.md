@@ -71,3 +71,34 @@ Shutter_Soul/
 ├── .gitignore
 ├── firebase.json                   # Firebase deployment configuration
 └── README.md
+
+🚀 Getting Started
+Prerequisites
+A modern web browser supporting WebRTC and ES6 JavaScript.
+
+Firebase CLI installed (npm install -g firebase-tools).
+
+Local Setup
+Clone the repository:
+
+Bash
+git clone [https://github.com/Midnight-Monster-Coding/Shutter_Soul.git](https://github.com/Midnight-Monster-Coding/Shutter_Soul.git)
+cd Shutter_Soul
+Configure Firebase:
+
+Create a Firebase project in the Firebase Console.
+
+Enable Authentication (Google / Email), Firestore Database, Cloud Storage, and Cloud Messaging.
+
+Link your local repository to your project:
+
+Bash
+firebase use --add
+Serve Locally:
+
+Bash
+firebase serve --only hosting
+Open http://localhost:5000 in your browser.
+
+📜 License
+This project is open-source and available under the MIT License.
