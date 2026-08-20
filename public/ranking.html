@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ranking - Shutter Soul</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Cormorant Garamond', serif;
+    background: #000000;
+    color: #ffffff;
+    min-height: 100vh;
+    padding-bottom: 80px;
+}
+
+/* Header */
+.header {
+    padding: 20px;
+    text-align: center;
+    background: #000000;
+    border-bottom: 1px solid #222;
+    position: relative;
+}
+
+.back-btn {
+    position: absolute;
+    left: 20px;
+    top: 20px;
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 32px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.back-btn:hover {
+    transform: translateX(-3px);
+}
+
+.header-title {
+    font-size: 36px;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    background: linear-gradient(90deg, #fff, #0cc0df);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.member-count {
+    color: #0cc0df;
+    font-size: 18px;
+    letter-spacing: 3px;
+}
+
+/* Timer Section */
+.timer-section {
+    text-align: center;
+    padding: 25px 20px;
+    background: #000000;
+}
+
+.countdown-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.countdown-timer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    font-size: 48px;
+    color: #ff0000;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.timer-label {
+    font-size: 18px;
+    color: #ffffff;
+    margin-top: 5px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-weight: 300;
+}
+
+.calendar-icon {
+    width: 70px;
+    height: 70px;
+    background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+    border-radius: 50%;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    position: relative;
+    box-shadow: 0 4px 20px rgba(255, 0, 0, 0.4);
+    border: 3px solid #000;
+    animation: timerPulse 2s ease-in-out infinite;
+}
+
+@keyframes timerPulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 4px 20px rgba(255, 0, 0, 0.4);
+    }
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 6px 30px rgba(255, 0, 0, 0.6);
+    }
+}
+
+.calendar-icon::before {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    bottom: -3px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ff0000, #0cc0df);
+    opacity: 0.5;
+    filter: blur(8px);
+    z-index: -1;
+}
+
+.calendar-header {
+    display: none;
+}
+
+.calendar-day {
+    color: #fff;
+    font-size: 28px;
+    font-weight: bold;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Month Info */
+.month-info {
+    text-align: center;
+    padding: 15px 20px;
+    color: #888;
+    font-size: 14px;
+    border-bottom: 1px solid #111;
+}
+
+.month-info span {
+    color: #0cc0df;
+    font-weight: 600;
+}
+
+/* Rankings List */
+.rankings-container {
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.rank-item {
+    display: flex;
+    align-items: center;
+    padding: 20px 10px;
+    border-bottom: 1px solid #222;
+    transition: all 0.3s;
+    position: relative;
+    animation: fadeInUp 0.5s ease-out;
+    gap: 10px;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.rank-item:hover {
+    background: #111;
+    transform: translateX(5px);
+}
+
+.rank-item.user-rank {
+    background: linear-gradient(90deg, #ff0000 0%, #cc0000 100%);
+    border: none;
+    margin: 0 -20px;
+    padding: 20px 35px;
+    box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
+    animation: pulseGlow 2s infinite;
+}
+
+@keyframes pulseGlow {
+    0%, 100% {
+        box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
+    }
+    50% {
+        box-shadow: 0 4px 25px rgba(255, 0, 0, 0.5);
+    }
+}
+
+/* Rank Number with Medal */
+.rank-number {
+    font-size: 36px;
+    font-weight: 300;
+    min-width: 100px;
+    text-align: left;
+    color: #8b7355;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-shrink: 0;
+}
+
+/* Trophy/Medal Emoji */
+.medal-icon {
+    font-size: 28px;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+    animation: rotateMedal 3s ease-in-out infinite;
+    flex-shrink: 0;
+}
+
+@keyframes rotateMedal {
+    0%, 100% {
+        transform: rotate(0deg);
+    }
+    25% {
+        transform: rotate(-10deg);
+    }
+    75% {
+        transform: rotate(10deg);
+    }
+}
+
+.rank-item:nth-child(1) .rank-number {
+    color: #ffd700;
+    font-size: 40px;
+    font-weight: 600;
+    min-width: 105px;
+}
+
+.rank-item:nth-child(2) .rank-number {
+    color: #c0c0c0;
+    font-size: 38px;
+    font-weight: 600;
+    min-width: 105px;
+}
+
+.rank-item:nth-child(3) .rank-number {
+    color: #cd7f32;
+    font-size: 36px;
+    font-weight: 600;
+    min-width: 105px;
+}
+
+.rank-item.user-rank .rank-number {
+    color: #ffffff;
+}
+
+/* Podium Effect for Top 3 */
+.rank-item:nth-child(1) {
+    background: linear-gradient(90deg, rgba(255, 215, 0, 0.15) 0%, rgba(255, 215, 0, 0.05) 100%);
+    border-left: 3px solid #ffd700;
+}
+
+.rank-item:nth-child(2) {
+    background: linear-gradient(90deg, rgba(192, 192, 192, 0.15) 0%, rgba(192, 192, 192, 0.05) 100%);
+    border-left: 3px solid #c0c0c0;
+}
+
+.rank-item:nth-child(3) {
+    background: linear-gradient(90deg, rgba(205, 127, 50, 0.15) 0%, rgba(205, 127, 50, 0.05) 100%);
+    border-left: 3px solid #cd7f32;
+}
+
+.user-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #d68fb5 0%, #c67ba3 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 24px;
+    margin-right: 15px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.3s;
+    border: 2px solid #333;
+    flex-shrink: 0;
+}
+
+.user-avatar:hover {
+    transform: scale(1.1);
+    border-color: #0cc0df;
+}
+
+.rank-item:nth-child(1) .user-avatar {
+    border: 3px solid #ffd700;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+}
+
+.rank-item:nth-child(2) .user-avatar {
+    border: 3px solid #c0c0c0;
+    box-shadow: 0 0 15px rgba(192, 192, 192, 0.4);
+}
+
+.rank-item:nth-child(3) .user-avatar {
+    border: 3px solid #cd7f32;
+    box-shadow: 0 0 15px rgba(205, 127, 50, 0.4);
+}
+
+.user-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.user-details {
+    flex: 1;
+}
+
+.user-name {
+    font-size: 22px;
+    margin-bottom: 5px;
+    color: #d4af37;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.user-name:hover {
+    color: #0cc0df;
+}
+
+.rank-item.user-rank .user-name {
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.user-score {
+    font-size: 18px;
+    color: #888;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.rank-item.user-rank .user-score {
+    color: #ffffff;
+}
+
+.score-value {
+    color: #0cc0df;
+    font-weight: 600;
+}
+
+.rank-item.user-rank .score-value {
+    color: #ffffff;
+}
+
+.score-max {
+    color: #666;
+    font-size: 16px;
+}
+
+.rank-item.user-rank .score-max {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* Progress Bar */
+.score-progress {
+    margin-top: 5px;
+    width: 100%;
+    max-width: 200px;
+    height: 4px;
+    background: #222;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.score-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #0cc0df, #00ff88);
+    border-radius: 2px;
+    transition: width 0.5s ease-out;
+}
+
+.rank-item:nth-child(1) .score-progress-bar {
+    background: linear-gradient(90deg, #ffd700, #ffed4e);
+}
+
+.rank-item:nth-child(2) .score-progress-bar {
+    background: linear-gradient(90deg, #c0c0c0, #e8e8e8);
+}
+
+.rank-item:nth-child(3) .score-progress-bar {
+    background: linear-gradient(90deg, #cd7f32, #e69658);
+}
+
+/* Bottom Navigation */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #000000;
+    border-top: 1px solid #222;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 15px 0;
+    z-index: 1000;
+}
+
+.nav-item {
+    background: none;
+    border: none;
+    color: #888;
+    cursor: pointer;
+    padding: 10px 30px;
+    transition: color 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    max-width: 80px;
+}
+
+.nav-item img {
+    width: 50px;
+    height: 50px;
+    filter: brightness(1.2);
+}
+.nav-profile-pic {
+    width: 50px !important;
+    height: 50px !important;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #333;
+    transition: border-color 0.3s;
+    filter: none;
+}
+
+.nav-item svg {
+    width: 60px;
+    height: 60px;
+    fill: #888;
+    transition: fill 0.3s;
+}
+
+.nav-item:hover svg {
+    fill: #0cc0df;
+}
+
+.nav-item.active svg {
+    fill: #0cc0df;
+}
+
+.upload-btn {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: #555555;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: -20px;
+    padding: 0;
+}
+
+.upload-btn svg {
+    width: 32px;
+    height: 32px;
+    fill: #ffffff;
+}
+
+.upload-btn:hover {
+    background: #666666;
+}
+
+.upload-btn:hover svg {
+    fill: #ffffff;
+}
+
+.loading {
+    text-align: center;
+    padding: 60px 20px;
+    color: #0cc0df;
+    font-size: 20px;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #222;
+    border-top: 4px solid #0cc0df;
+    border-radius: 50%;
+    margin: 0 auto 20px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    color: #666;
+}
+
+.empty-state h2 {
+    font-size: 36px;
+    margin-bottom: 15px;
+}
+
+.error-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #ff6666;
+}
+
+.error-state h2 {
+    font-size: 28px;
+    margin-bottom: 15px;
+}
+
+/* Photo Count Badge */
+.photo-count {
+    display: inline-block;
+    background: rgba(12, 192, 223, 0.2);
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 14px;
+    color: #0cc0df;
+    margin-left: 8px;
+}
+
+@media (max-width: 768px) {
+    .countdown-timer {
+        font-size: 36px;
+    }
+
+    .rank-number {
+        font-size: 28px;
+        min-width: 85px;
+    }
+
+    .user-name {
+        font-size: 18px;
+    }
+    
+    .calendar-icon {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .calendar-day {
+        font-size: 24px;
+    }
+}
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="back-btn" onclick="window.location.href='index.html'">‹</button>
+        <h1 class="header-title">Ranking</h1>
+        <p class="member-count" id="memberCount">Loading...</p>
+    </div>
+
+    <div class="timer-section">
+        <div class="countdown-display">
+            <div class="calendar-icon">
+                <div class="calendar-day" id="daysRemaining">0</div>
+            </div>
+            <span class="timer-label">days remaining</span>
+        </div>
+    </div>
+
+    <div class="month-info" id="monthInfo">
+        <!-- Dynamic month info will be inserted here -->
+    </div>
+
+    <div class="rankings-container" id="rankingsContainer">
+        <div class="loading">
+            <div class="loading-spinner"></div>
+            Loading rankings...
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <button class="nav-item active" onclick="window.location.href='ranking.html'">
+            <img src="statistics.svg" alt="Statistics">
+        </button>
+
+        <button class="nav-item" onclick="window.location.href='index.html'">
+            <img src="home.svg" alt="Home">
+        </button>
+        <button class="nav-item" onclick="window.location.href='message.html'">
+            <img src="msg.svg" alt="Messages">
+        </button>
+        <button class="nav-item" id="navProfileBtn" onclick="window.location.href='profile.html'">
+            <img id="navProfilePic" src="profile.svg" alt="Profile" class="nav-profile-pic">
+        </button>
+    </div>
+    <script>
+    // ✅ Set nav profile picture from localStorage cache
+    (function() {
+        const cached = localStorage.getItem('shutterSoulProfilePic');
+        if (cached) {
+            const pic = document.getElementById('navProfilePic');
+            if (pic) { pic.src = cached; pic.style.borderColor = '#0cc0df'; }
+        }
+    })();
+    </script>
+
+    <script type="module">
+    import { getDatabase, ref, onDisconnect, set, serverTimestamp as rtdbServerTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+    import { getAuth, onAuthStateChanged, setPersistence, browserLocalPersistence } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+    import { getFirestore, collection, getDocs, doc, getDoc, query, where, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyD3rQ3l-AlnJhCOCcA7_h2rQHfdxDz1Of0",
+        authDomain: "shutter-soul.firebaseapp.com",
+        projectId: "shutter-soul",
+        storageBucket: "shutter-soul.appspot.com",
+        messagingSenderId: "602126305011",
+        appId: "1:602126305011:web:c059836dae27a208e95986",
+        measurementId: "G-MSSSHJKN28",
+        // ✅ FIX: Added the mandatory Asia database URL so presence works
+        databaseURL: "https://shutter-soul-default-rtdb.asia-southeast1.firebasedatabase.app" 
+    };
+
+    // ✅ FIX: Ordered correctly. App MUST be initialized before db and rtdb
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const rtdb = getDatabase(app);
+    setPersistence(auth, browserLocalPersistence).catch(console.error);
+
+    let currentUser = null;
+    let maxMonthScore = 0;
+    let currentMonthYear = '';
+    let daysInMonth = 0;
+
+    // ✅ BUG FIX 2 — Timezone-safe date helpers
+    function getLocalDate() { return new Date().toLocaleDateString('en-CA'); }
+    function getLocalMonthYear() { return getLocalDate().slice(0, 7); }
+
+    // Calculate days remaining in month and max score
+    function updateMonthInfo() {
+        const now = new Date();
+        const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+        const daysLeft = lastDay.getDate() - now.getDate();
+        
+        daysInMonth = lastDay.getDate();
+        maxMonthScore = daysInMonth * 77;
+        currentMonthYear = getLocalMonthYear();
+        
+        document.getElementById('daysRemaining').textContent = daysLeft;
+        
+        // Update month info display
+        const monthInfo = document.getElementById('monthInfo');
+        const monthName = now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+        monthInfo.innerHTML = `
+            ${monthName} • <span>${daysInMonth} days</span>
+        `;
+    }
+
+    updateMonthInfo();
+
+    onAuthStateChanged(auth, async (user) => {
+        if (!user) {
+            setTimeout(() => {
+                if (!auth.currentUser && !localStorage.getItem('shutterSoulLoggedIn')) {
+                    window.location.href = 'login.html';
+                }
+            }, 800);
+            return;
+        }
+        currentUser = user;
+        localStorage.setItem('shutterSoulLoggedIn', 'true');
+        await loadRankings();
+    });
+
+
+    function loadRankings() {
+        const container = document.getElementById('rankingsContainer');
+        container.innerHTML = `<div class="loading"><div class="loading-spinner"></div>Loading rankings...</div>`;
+
+        const rankingsRef = collection(db, `monthlyRankings/${currentMonthYear}/users`);
+
+        onSnapshot(rankingsRef, async (snap) => {
+            const rankings = [];
+            snap.forEach(doc => rankings.push(doc.data()));
+
+            // ✅ If Cloud Function has populated data, use it!
+            if (rankings.length > 0) {
+                rankings.sort((a, b) => (b.totalScore || 0) - (a.totalScore || 0));
+                document.getElementById('memberCount').textContent = `${rankings.length} MEMBERS`;
+
+                const formattedRankings = rankings.map(r => ({
+                    userId:        r.userId,
+                    username:      r.displayName || 'Anonymous',
+                    photoURL:      r.photoURL     || null,
+                    totalScore:    r.totalScore   || 0,
+                    uploadCount:   r.photoCount   || 0,
+                    currentStreak: r.currentStreak || 0,
+                    lifetimeTitle: r.lifetimeTitle || ''
+                }));
+
+                displayRankings(formattedRankings, container);
+            }
+            // 🚨 FALLBACK: Cloud Function hasn't run yet? Calculate it locally!
+            else {
+                console.log("No backend rankings found. Calculating fallback manually...");
+                try {
+                    const usersSnap = await getDocs(collection(db, 'users'));
+                    const fallbackRankings = [];
+
+                    const promises = usersSnap.docs.map(async (userDoc) => {
+                        const uData = userDoc.data();
+                        const uid = userDoc.id;
+                        const uploadsSnap = await getDocs(collection(db, `dailyUploads/${currentMonthYear}/${uid}`));
+
+                        if (!uploadsSnap.empty) {
+                            let totalScore = 0;
+                            let photoCount = 0;
+
+                            uploadsSnap.forEach(uploadDoc => {
+                                const d = uploadDoc.data();
+                                const likes = Math.round((d.likes || 0) * (d.goldenHourMultiplier || 1.0));
+                                totalScore += (d.rating || 0) + likes;
+                                photoCount++;
+                            });
+
+                            fallbackRankings.push({
+                                userId:        uid,
+                                username:      uData.displayName || 'Anonymous',
+                                photoURL:      uData.photoURL    || null,
+                                totalScore:    totalScore,
+                                uploadCount:   photoCount,
+                                currentStreak: uData.currentStreak || 0,
+                                lifetimeTitle: uData.lifetimeTitle || ''
+                            });
+                        }
+                    });
+
+                    await Promise.all(promises);
+
+                    fallbackRankings.sort((a, b) => (b.totalScore || 0) - (a.totalScore || 0));
+                    document.getElementById('memberCount').textContent = `${fallbackRankings.length} MEMBERS`;
+
+                    if (fallbackRankings.length === 0) {
+                        container.innerHTML = `<div class="empty-state"><h2>📷</h2><h2>No Rankings Yet</h2><p>Be the first to upload and compete!</p></div>`;
+                    } else {
+                        displayRankings(fallbackRankings, container);
+                    }
+                } catch (err) {
+                    console.error('Fallback error:', err);
+                    container.innerHTML = `<div class="error-state"><h2>⚠️ Error Loading Rankings</h2><p>${err.message}</p></div>`;
+                }
+            }
+        }, (error) => {
+            console.error('Real-time ranking error:', error);
+            container.innerHTML = `<div class="error-state"><h2>⚠️ Error Loading Rankings</h2><p>${error.message}</p></div>`;
+        });
+    }
+
+    function displayRankings(rankings, container) {
+        container.innerHTML = '';
+
+        rankings.forEach((user, index) => {
+            const isCurrentUser = user.userId === currentUser?.uid;
+            const rankItem = document.createElement('div');
+            rankItem.className = `rank-item ${isCurrentUser ? 'user-rank' : ''}`;
+            rankItem.style.animationDelay = `${index * 0.05}s`;
+            
+            const avatarHTML = user.photoURL 
+                ? `<img src="${user.photoURL}" alt="${user.username}">`
+                : user.username.charAt(0).toUpperCase();
+
+            // Medal icons for top 3
+            let medalIcon = '';
+            if (index === 0) medalIcon = '<span class="medal-icon">🥇</span>';
+            else if (index === 1) medalIcon = '<span class="medal-icon">🥈</span>';
+            else if (index === 2) medalIcon = '<span class="medal-icon">🥉</span>';
+
+            // Calculate progress percentage relative to top scorer
+            const topScore = rankings.length > 0 ? rankings[0].totalScore : 1;
+            const progressPercent = topScore > 0 ? (user.totalScore / topScore) * 100 : 0;
+
+            rankItem.innerHTML = `
+                <div class="rank-number">
+                    ${medalIcon}
+                    #${index + 1}
+                </div>
+                <div class="user-avatar" onclick="viewUserProfile('${user.userId}')" style="cursor: pointer;">
+                    ${avatarHTML}
+                </div>
+                <div class="user-details">
+                    <div class="user-name" onclick="viewUserProfile('${user.userId}')" style="cursor: pointer;">
+                        ${isCurrentUser ? 'YOU' : user.username}
+                        ${user.currentStreak >= 3 ? `<span style="font-size:12px;margin-left:4px;" title="${user.currentStreak}-day streak">🔥${user.currentStreak}</span>` : ''}
+                        <span class="photo-count">${user.uploadCount} 📸</span>
+                    </div>
+                    <div class="user-score">
+                        Score: <span class="score-value">${user.totalScore}</span><span class="score-max"> pts</span>
+                        ${user.lifetimeTitle ? `<span style="font-size:11px;color:#555;margin-left:8px;">${user.lifetimeTitle}</span>` : ''}
+                    </div>
+                    <div class="score-progress">
+                        <div class="score-progress-bar" style="width: ${Math.min(progressPercent, 100)}%"></div>
+                    </div>
+                </div>
+            `;
+
+            container.appendChild(rankItem);
+        });
+    }
+    
+    // View user profile function
+    window.viewUserProfile = function(userId) {
+        if (userId === currentUser?.uid) {
+            // If clicking own profile, go to profile.html
+            window.location.href = 'profile.html';
+        } else {
+            // If clicking another user's profile, go to user_profile.html
+            window.location.href = `user_profile.html?userId=${userId}`;
+        }
+    };
+    // GLOBAL PRESENCE & CALL TRACKER
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                const myRef = ref(rtdb, `presence/${user.uid}`);
+                
+                // Set online when page loads
+                set(myRef, { state: 'online', last_changed: rtdbServerTimestamp(), userId: user.uid });
+                onDisconnect(myRef).set({ state: 'offline', last_changed: rtdbServerTimestamp(), userId: user.uid });
+
+                document.addEventListener('visibilitychange', () => {
+                    set(myRef, {
+                        state: document.hidden ? 'offline' : 'online',
+                        last_changed: rtdbServerTimestamp(),
+                        userId: user.uid
+                    });
+                });
+
+
+                // ✅ FIX: RACE-CONDITION PROOF GLOBAL INCOMING CALL BANNER
+                const callsQuery = query(collection(db, 'calls'), where('calleeId', '==', user.uid), where('status', '==', 'ringing'));
+                onSnapshot(callsQuery, (snap) => {
+                    snap.docChanges().forEach((change) => {
+                        const callData = change.doc.data();
+                        const bannerId = `globalCallBanner-${callData.callId}`; // Unique ID per call
+
+                        if (change.type === 'added') {
+                            // Tolerate client clock drift up to 2 minutes
+                            if (Date.now() - (callData.createdAt?.toMillis?.() || Date.now()) > 120000) return;
+
+                            // Fetch user but DON'T block the main thread
+                            getDoc(doc(db, 'users', callData.callerId)).then(cdSnap => {
+                                
+                                // 🚨 CRITICAL: Check the database ONE more time before creating the banner.
+                                // If the caller hung up while we were downloading their name, abort!
+                                getDoc(doc(db, 'calls', callData.callId)).then(currentCall => {
+                                    if (currentCall.exists() && currentCall.data().status === 'ringing') {
+                                        let callerName = 'Someone';
+                                        const cd = cdSnap.exists() ? cdSnap.data() : {};
+                                        callerName = cd.displayName || cd.customName || cd.name || cd.email?.split('@')[0] || 'Someone';
+
+                                        if (!document.getElementById(bannerId)) {
+                                            const banner = document.createElement('div');
+                                            banner.id = bannerId;
+                                            banner.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg, #667eea, #764ba2);color:white;padding:15px 30px;border-radius:50px;box-shadow:0 10px 30px rgba(0,0,0,0.6);z-index:99999;display:flex;align-items:center;gap:15px;cursor:pointer;transition:all 0.3s;animation:slideDown 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);';
+                                            banner.innerHTML = `
+                                                <span style="font-size:24px; animation: ring 1s infinite ease-in-out;">📞</span> 
+                                                <div>
+                                                    <div style="font-weight:bold; font-family: 'Segoe UI', Tahoma, sans-serif;">${callerName} is calling...</div>
+                                                    <div style="font-size:12px; opacity:0.9;">Click to answer</div>
+                                                </div>`;
+                                            banner.onclick = () => window.location.href = `message.html?callId=${callData.callId}&action=accept`;
+                                            
+                                            if (!document.getElementById('bannerStyles')) {
+                                                const style = document.createElement('style');
+                                                style.id = 'bannerStyles';
+                                                style.textContent = `
+                                                    @keyframes slideDown { from { top: -100px; opacity: 0; } to { top: 20px; opacity: 1; } }
+                                                    @keyframes ring { 0% { transform: rotate(0); } 10% { transform: rotate(15deg); } 20% { transform: rotate(-15deg); } 30% { transform: rotate(10deg); } 40% { transform: rotate(-10deg); } 50% { transform: rotate(0); } 100% { transform: rotate(0); } }
+                                                `;
+                                                document.head.appendChild(style);
+                                            }
+                                            document.body.appendChild(banner);
+                                            
+                                            // Auto-cleanup DOM if it somehow gets stuck
+                                            setTimeout(() => { if(banner) banner.remove(); }, 65000); 
+                                        }
+                                    }
+                                });
+                            });
+                        } else if (change.type === 'modified' || change.type === 'removed') {
+                            // Remove the specific banner associated with this callId
+                            if (callData.status !== 'ringing' || change.type === 'removed') {
+                                const banner = document.getElementById(bannerId);
+                                if (banner) banner.remove();
+                            }
+                        }
+                    });
+                });
+            }
+        });
+
+
+</script>
+</body>
+</html>

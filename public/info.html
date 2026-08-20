@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shutter Soul - Info</title>
+    <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&display=swap" rel="stylesheet">
+    <style>
+        @font-face {
+            font-family: 'The Seasons';
+            src: url('https://fonts.cdnfonts.com/css/the-seasons');
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #000000;
+            color: #ffffff;
+            font-family: 'The Seasons', serif;
+            overflow-x: hidden;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background-color: #000000;
+            z-index: 100;
+            border-bottom: 1px solid #333;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 32px;
+            cursor: pointer;
+            padding: 0 15px;
+        }
+
+        .logo {
+            font-family: 'Alex Brush', cursive;
+            font-size: 42px;
+            color: #0cc0df;
+            flex: 1;
+            text-align: center;
+            margin-right: 50px;
+        }
+
+        .info-container {
+            margin-top: 90px;
+            padding: 30px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            margin-bottom: 40px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            font-size: 28px;
+            color: #0cc0df;
+            margin-bottom: 15px;
+            letter-spacing: 2px;
+        }
+
+        .section-content {
+            font-size: 18px;
+            line-height: 1.8;
+            color: #ccc;
+        }
+
+        .section-content p {
+            margin-bottom: 15px;
+        }
+
+        .highlight {
+            color: #0cc0df;
+            font-weight: bold;
+        }
+
+        .rules-list {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .rules-list li {
+            padding: 15px;
+            margin-bottom: 10px;
+            background-color: #1a1a1a;
+            border-radius: 10px;
+            border-left: 4px solid #0cc0df;
+        }
+
+        .rules-list li::before {
+            content: "✓ ";
+            color: #0cc0df;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .rating-scale {
+            background-color: #1a1a1a;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 15px;
+        }
+
+        .scale-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #333;
+        }
+
+        .scale-item:last-child {
+            border-bottom: none;
+        }
+
+        .scale-label {
+            color: #aaa;
+        }
+
+        .scale-value {
+            color: #0cc0df;
+            font-weight: bold;
+        }
+
+        .prize-section {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .medals {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 20px 0;
+        }
+
+        .medal-display {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .medal-icon-display {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            border: 3px solid;
+        }
+
+        .medal-gold-display {
+            background: radial-gradient(circle, #ffd700 0%, #daa520 100%);
+            border-color: #ffd700;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+        }
+
+        .medal-silver-display {
+            background: radial-gradient(circle, #e8e8e8 0%, #c0c0c0 100%);
+            border-color: #c0c0c0;
+            box-shadow: 0 0 20px rgba(192, 192, 192, 0.6);
+        }
+
+        .medal-bronze-display {
+            background: radial-gradient(circle, #f4a460 0%, #cd7f32 100%);
+            border-color: #cd7f32;
+            box-shadow: 0 0 20px rgba(205, 127, 50, 0.6);
+        }
+
+        .contact-section {
+            text-align: center;
+            padding: 30px;
+            background-color: #1a1a1a;
+            border-radius: 15px;
+        }
+
+        .contact-section a {
+            color: #0cc0df;
+            text-decoration: none;
+            font-size: 18px;
+        }
+
+        .contact-section a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="back-btn" onclick="window.location.href='index.html'">‹</button>
+        <h1 class="logo">Shutter Soul</h1>
+    </div>
+
+    <div class="info-container">
+        <div class="section">
+            <h2 class="section-title">About Shutter Soul</h2>
+            <div class="section-content">
+                <p>Welcome to <span class="highlight">Shutter Soul</span> - where photography meets competition! This is a daily photo challenge platform where photographers showcase their skills and compete for monthly glory.</p>
+                <p>Upload one original photo per day, get AI-rated based on composition, technical quality, and creativity, and climb the rankings to earn prestigious medals.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">How It Works</h2>
+            <div class="section-content">
+                <ul class="rules-list">
+                    <li><strong>One Photo Per Day:</strong> Upload one original photo captured by you daily (max 10MB)</li>
+                    <li><strong>AI Rating System:</strong> Each photo receives a base score from 0-77 from our AI</li>
+                    <li><strong>Engage & Earn:</strong> You can like and comment on other users' posts. When others like your photos, it adds extra points to your score!</li>
+                    <li><strong>Community Chat:</strong> Connect directly with the community—here you can also chat with other users.</li>
+                    <li><strong>Monthly Competition:</strong> Your daily scores and bonus likes accumulate throughout the month</li>
+                    <li><strong>Real-Time Rankings:</strong> Watch your position change as you and others upload photos</li>
+                    <li><strong>Win Medals:</strong> Top 3 photographers at month-end receive Gold, Silver, or Bronze medals</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Rating System</h2>
+            <div class="section-content">
+                <p>Our AI analyzes your photos based on professional photography standards, and your score gets boosted by community likes:</p>
+                <div class="rating-scale">
+                    <div class="scale-item">
+                        <span class="scale-label">Composition & Balance</span>
+                        <span class="scale-value">25 points</span>
+                    </div>
+                    <div class="scale-item">
+                        <span class="scale-label">Technical Quality</span>
+                        <span class="scale-value">20 points</span>
+                    </div>
+                    <div class="scale-item">
+                        <span class="scale-label">Color & Lighting</span>
+                        <span class="scale-value">17 points</span>
+                    </div>
+                    <div class="scale-item">
+                        <span class="scale-label">Originality & Diversity</span>
+                        <span class="scale-value">15 points</span>
+                    </div>
+                    <div class="scale-item">
+                        <span class="scale-label">Base Maximum AI Score</span>
+                        <span class="scale-value">77 points</span>
+                    </div>
+                    <div class="scale-item" style="border-top: 1px solid #0cc0df; margin-top: 10px; padding-top: 20px;">
+                        <span class="scale-label" style="color: #fff;">Community Likes</span>
+                        <span class="scale-value">+ Extra Bonus Points</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Photo Requirements</h2>
+            <div class="section-content">
+                <ul class="rules-list">
+                    <li>It is <strong>highly recommended</strong> that you upload your own captured photos. <strong>No downloaded photos are accepted here.</strong></li>
+                    <li>No AI-generated images</li>
+                    <li>No duplicate or highly similar photos</li>
+                    <li>Supported formats: JPG, PNG, WebP</li>
+                    <li>Maximum file size: 10MB</li>
+                    <li>Photos are actively verified using AI detection systems</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Monthly Prizes</h2>
+            <div class="section-content">
+                <div class="prize-section">
+                    <p style="margin-bottom: 20px; font-size: 20px;">Top 3 photographers earn exclusive medals displayed on their profiles forever!</p>
+                    <div class="medals">
+                        <div class="medal-display">
+                            <div class="medal-icon-display medal-gold-display">1</div>
+                            <div>Gold Medal</div>
+                        </div>
+                        <div class="medal-display">
+                            <div class="medal-icon-display medal-silver-display">2</div>
+                            <div>Silver Medal</div>
+                        </div>
+                        <div class="medal-display">
+                            <div class="medal-icon-display medal-bronze-display">3</div>
+                            <div>Bronze Medal</div>
+                        </div>
+                    </div>
+                    <p style="font-size: 16px; color: #888;">Compete daily and collect likes to maximize your final score!</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Monthly Reset</h2>
+            <div class="section-content">
+                <p>At the end of each month:</p>
+                <ul class="rules-list">
+                    <li>Winners are declared and medals are awarded</li>
+                    <li>Scores reset to zero for everyone</li>
+                    <li>A fresh competition begins on the 1st</li>
+                    <li>Medals remain in your achievements forever</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">Tips for Better Scores</h2>
+            <div class="section-content">
+                <ul class="rules-list">
+                    <li>Use the <strong>Rule of Thirds</strong> for composition</li>
+                    <li>Ensure good <strong>lighting</strong> and proper <strong>exposure</strong></li>
+                    <li>Keep your photos <strong>sharp</strong> and well-focused</li>
+                    <li>Experiment with different <strong>angles</strong> and <strong>perspectives</strong></li>
+                    <li>Be active in the community—more visibility often brings more <strong>likes</strong></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="contact-section">
+                <h3 style="color: #0cc0df; margin-bottom: 15px;">Need Help?</h3>
+                <p>For support, questions, or feedback:</p>
+                <p style="margin-top: 10px;"><a href="mailto:support@shuttersoul.com">support@shuttersoul.com</a></p>
+            </div>
+        </div>
+
+        <div style="text-align: center; color: #666; margin-top: 40px; padding: 20px;">
+            <p>© 2025 Shutter Soul. All rights reserved.</p>
+            <p style="margin-top: 10px; font-size: 16px;">Capture. Compete. Connect. Conquer.</p>
+        </div>
+    </div>
+</body>
+</html>

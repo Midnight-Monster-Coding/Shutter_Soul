@@ -1,0 +1,84 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Helper function to check if user owns the resource
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    
+    // Users collection - users can read all, but only write their own
+    match /users/{userId} {
+      allow read: if true; // Public read for displaying profiles
+      allow create: if isAuthenticated() && isOwner(userId);
+      allow update: if isAuthenticated() && isOwner(userId);
+      allow delete: if false; // No deletion allowed
+      
+      // Achievements subcollection
+      match /achievements/{monthYear} {
+        allow read: if true;
+        allow write: if false; // Only cloud functions can write achievements
+      }
+    }
+    
+    // Daily uploads - read all, write only your own
+    match /dailyUploads/{monthYear}/{userId}/{uploadDate} {
+      allow read: if true; // Public read for feed
+      allow create: if isAuthenticated() && isOwner(userId) 
+                    && !exists(/databases/$(database)/documents/dailyUploads/$(monthYear)/$(userId)/$(uploadDate)); // Prevent duplicate uploads
+      allow update: if true; // Allow likes updates
+      allow delete: if false; // No manual deletion
+    }
+    
+    // Monthly rankings - read all, write restricted
+    match /monthlyRankings/{monthYear}/{userId} {
+      allow read: if true; // Public read for rankings page
+      allow write: if false; // Only cloud functions/triggers update rankings
+    }
+    
+    // Image hashes - for duplicate detection
+    match /imageHashes/{hash} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if false;
+      allow delete: if false;
+    }
+    
+    // Likes collection (optional, if tracking individual likes)
+    match /likes/{likeId} {
+      allow read: if true;
+      allow create: if isAuthenticated();
+      allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+    }
+  }
+}
+
+// Firebase Storage Security Rules
+// Add these to your Firebase Storage rules
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Profile photos - users can read all, write only their own
+    match /profilePhotos/{userId}/{fileName} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == userId
+                   && request.resource.size < 10 * 1024 * 1024  // Max 10MB
+                   && request.resource.contentType.matches('image/.*');
+      allow delete: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Competition photos - users can read all, write only their own
+    match /photos/{monthYear}/{userId}/{fileName} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == userId
+                   && request.resource.size < 10 * 1024 * 1024  // Max 10MB
+                   && request.resource.contentType.matches('image/.*');
+      allow delete: if false; // No manual deletion
+    }
+  }
+}

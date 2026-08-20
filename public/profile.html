@@ -1,0 +1,1525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shutter Soul - Profile</title>
+    <style>
+        * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #000;
+    color: #fff;
+}
+
+/* Header */
+.header {
+    background: rgba(0, 0, 0, 0.9);
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+}
+
+.back-btn {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 28px;
+    cursor: pointer;
+}
+
+.header-title {
+    font-size: 24px;
+    letter-spacing: 2px;
+}
+
+/* Profile Container */
+.profile-container {
+    margin-top: 70px;
+    padding: 20px;
+    padding-bottom: 100px;
+}
+
+/* Profile Header */
+.profile-header {
+    text-align: center;
+    padding: 30px 0;
+}
+
+.profile-avatar-wrapper {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 20px;
+}
+
+.profile-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #e91e63, #9c27b0);
+    object-fit: cover;
+    border: 4px solid #222;
+}
+
+.edit-avatar-btn {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: 3px solid #000;
+    color: #fff;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.profile-name {
+    font-size: 28px;
+    margin-bottom: 10px;
+}
+
+/* Achievements */
+.achievements-section {
+    background: #111;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.section-title {
+    font-size: 18px;
+    margin-bottom: 15px;
+    color: #aaa;
+}
+
+.medals-container {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.medal {
+    text-align: center;
+    font-size: 48px;
+}
+
+.medal-label {
+    font-size: 12px;
+    color: #888;
+    margin-top: 5px;
+}
+
+/* Gallery */
+.gallery-section {
+    background: #111;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.gallery-item {
+    aspect-ratio: 1;
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    position: relative;
+}
+
+.gallery-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s;
+}
+
+.gallery-item:hover img {
+    transform: scale(1.05);
+}
+
+/* Delete Button Overlay */
+.delete-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(255, 0, 0, 0.9);
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    color: #fff;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s, transform 0.2s;
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+.gallery-item:hover .delete-btn {
+    opacity: 1;
+}
+
+.delete-btn:hover {
+    transform: scale(1.1);
+    background: rgba(255, 0, 0, 1);
+}
+
+.delete-btn:active {
+    transform: scale(0.95);
+}
+
+.empty-gallery {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+}
+
+/* Photo Rating Badge */
+.photo-rating-badge {
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 4px 10px;
+    border-radius: 5px;
+    font-size: 13px;
+    color: #00d4ff;
+    font-weight: 600;
+    pointer-events: none;
+}
+
+/* Fullscreen Photo Viewer */
+.photo-viewer {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.98);
+    z-index: 3000;
+    backdrop-filter: blur(10px);
+}
+
+.photo-viewer.active {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Blurred Background Image */
+.viewer-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+}
+
+.viewer-background img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: blur(40px) brightness(0.4);
+    transform: scale(1.1);
+}
+
+/* Main Viewer Content */
+.viewer-content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+}
+
+/* Viewer Header */
+.viewer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.viewer-close-btn {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 32px;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background 0.3s;
+}
+
+.viewer-close-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.viewer-info {
+    flex: 1;
+    text-align: center;
+    font-size: 16px;
+    color: #fff;
+}
+
+.viewer-delete-btn {
+    background: rgba(255, 0, 0, 0.9);
+    border: none;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background 0.3s, transform 0.2s;
+}
+
+.viewer-delete-btn:hover {
+    background: rgba(255, 0, 0, 1);
+    transform: scale(1.05);
+}
+
+/* Main Photo Container */
+.viewer-photo-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    overflow: hidden;
+}
+
+.viewer-photo {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: 10px;
+    box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5);
+}
+
+/* Viewer Footer */
+.viewer-footer {
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.5);
+    text-align: center;
+}
+
+.viewer-rating {
+    font-size: 20px;
+    color: #00d4ff;
+    font-weight: 600;
+}
+
+/* Bottom Navigation */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #000000;
+    border-top: 1px solid #333;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 15px 0;
+    z-index: 1000;
+}
+
+.nav-item {
+    background: none;
+    border: none;
+    color: #888;
+    cursor: pointer;
+    padding: 10px 30px;
+    transition: color 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.nav-item {
+    flex: 1;
+    max-width: 80px;
+}
+
+.nav-item img {
+    width: 28px;
+    height: 28px;
+}
+.nav-item svg {
+    width: 60px;
+    height: 60px;
+    fill: #888;
+    transition: fill 0.3s;
+}
+
+.nav-item:hover svg {
+    fill: #0cc0df;
+}
+
+.nav-item.active svg {
+    fill: #0cc0df;
+}
+
+.upload-btn {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: #555555;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: -20px;
+    padding: 0;
+}
+
+.upload-btn svg {
+    width: 32px;
+    height: 32px;
+    fill: #ffffff;
+}
+
+.upload-btn:hover {
+    background: #666666;
+}
+
+.upload-btn:hover svg {
+    fill: #ffffff;
+}
+
+.upload-btn-wrapper {
+    position: relative;
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    max-width: 100px;
+}
+
+.upload-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    margin-top: -30px;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    text-decoration: none;
+}
+
+.upload-btn svg {
+    width: 32px;
+    height: 32px;
+    fill: #ffffff;
+}
+
+/* Avatar Upload Modal */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 2000;
+    padding: 20px;
+}
+
+.modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background: #111;
+    border-radius: 10px;
+    padding: 30px;
+    width: 100%;
+    max-width: 400px;
+}
+
+.modal-title {
+    font-size: 24px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.avatar-preview {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    margin: 0 auto 20px;
+    display: block;
+    object-fit: cover;
+    background: #222;
+}
+
+.file-input-wrapper {
+    margin-bottom: 20px;
+}
+
+.file-input-label {
+    display: block;
+    padding: 15px;
+    background: #222;
+    border-radius: 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.file-input-label:hover {
+    background: #333;
+}
+
+#avatarInput {
+    display: none;
+}
+
+.btn {
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    margin-bottom: 10px;
+}
+
+.btn-secondary {
+    background: #222;
+    color: #fff;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.loading {
+    text-align: center;
+    padding: 20px;
+    color: #666;
+}
+.nav-item img {
+    width: 50px;
+    height: 50px;
+    filter: brightness(1.2);
+}
+.nav-profile-pic {
+    width: 50px !important;
+    height: 50px !important;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #333;
+    transition: border-color 0.3s;
+    filter: none;
+}
+
+/* Delete Confirmation Dialog */
+.delete-dialog {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 4000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.delete-dialog.active {
+    display: flex;
+}
+
+.delete-dialog-content {
+    background: #111;
+    border-radius: 15px;
+    padding: 30px;
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+}
+
+.delete-dialog-icon {
+    font-size: 60px;
+    margin-bottom: 20px;
+}
+
+.delete-dialog-title {
+    font-size: 22px;
+    margin-bottom: 15px;
+    color: #ff3366;
+}
+
+.delete-dialog-text {
+    color: #aaa;
+    margin-bottom: 30px;
+    line-height: 1.5;
+}
+
+.delete-dialog-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.dialog-btn {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.dialog-btn:hover {
+    transform: translateY(-2px);
+}
+
+.dialog-btn-cancel {
+    background: #222;
+    color: #fff;
+}
+
+.dialog-btn-delete {
+    background: #ff3366;
+    color: #fff;
+}
+
+.dialog-btn-delete:hover {
+    background: #ff0044;
+}
+
+.dialog-btn-delete:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+    .viewer-header { padding: 15px; }
+    .viewer-info { font-size: 14px; }
+    .viewer-delete-btn { padding: 8px 15px; font-size: 12px; }
+    .viewer-footer { padding: 15px; }
+    .viewer-rating { font-size: 18px; }
+}
+
+/* ═══════════════════════════════════════════════
+   🔥 STREAK & 🏆 LIFETIME PROGRESSION
+═══════════════════════════════════════════════ */
+.stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+.stat-card {
+    background: #0d0d0d;
+    border: 1px solid #222;
+    border-radius: 14px;
+    padding: 16px;
+    text-align: center;
+}
+.stat-card .stat-icon  { font-size: 26px; margin-bottom: 6px; }
+.stat-card .stat-num   { font-size: 24px; font-weight: 800; color: #fff; margin-bottom: 2px; }
+.stat-card .stat-label { font-size: 11px; color: #666; letter-spacing: 1px; text-transform: uppercase; }
+
+.lifetime-section {
+    background: #111;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+.lifetime-title-display {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+.lifetime-current-title { font-size: 18px; font-weight: 800; color: #0cc0df; }
+.lifetime-score-label  { font-size: 13px; color: #888; }
+.progress-track {
+    background: #1a1a1a;
+    border-radius: 20px;
+    height: 12px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+.progress-fill-bar {
+    height: 100%;
+    border-radius: 20px;
+    background: linear-gradient(90deg, #0cc0df, #0080ff);
+    transition: width 1s cubic-bezier(0.25, 1, 0.5, 1);
+    position: relative;
+}
+.progress-fill-bar::after {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 20px; height: 100%;
+    background: rgba(255,255,255,0.3);
+    border-radius: 20px;
+    animation: shimmer 2s infinite;
+}
+@keyframes shimmer { 0%,100%{ opacity:0; } 50%{ opacity:1; } }
+.progress-milestones {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: #444;
+    margin-top: 4px;
+}
+.streak-display-card {
+    background: linear-gradient(135deg, rgba(255,80,0,0.1), rgba(255,140,0,0.06));
+    border: 1px solid rgba(255,100,0,0.3);
+    border-radius: 14px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+.streak-fire-big  { font-size: 40px; }
+.streak-info-text { flex: 1; }
+.streak-num-big   { font-size: 28px; font-weight: 800; color: #ff6a00; }
+.streak-sublabel  { font-size: 12px; color: #888; margin-top: 2px; }
+.streak-longest   { font-size: 13px; color: #555; margin-top: 4px; }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <button class="back-btn" onclick="window.location.href='index.html'">‹</button>
+        <h1 class="header-title">PROFILE</h1>
+    </div>
+
+    <!-- Profile Container -->
+    <div class="profile-container">
+        <!-- Profile Header -->
+        <div class="profile-header">
+            <div class="profile-avatar-wrapper">
+                <img id="profileAvatar" class="profile-avatar" src="" alt="Profile">
+                <button class="edit-avatar-btn" onclick="openAvatarModal()">✏️</button>
+            </div>
+            <h2 class="profile-name" id="profileName">Loading...</h2>
+        </div>
+
+        <!-- 🔥 Streak Card -->
+        <div class="streak-display-card" id="streakCard" style="display:none;">
+            <div class="streak-fire-big">🔥</div>
+            <div class="streak-info-text">
+                <div class="streak-num-big" id="profileStreakNum">0</div>
+                <div class="streak-sublabel">Day Upload Streak</div>
+                <div class="streak-longest" id="profileLongestStreak">Longest: 0 days</div>
+            </div>
+            <div style="text-align:right;">
+                <div style="font-size:11px;color:#555;text-transform:uppercase;letter-spacing:1px;">Bonus</div>
+                <div style="font-size:16px;font-weight:700;color:#ff9500;">+2 pts</div>
+                <div style="font-size:10px;color:#555;">every 5 days</div>
+            </div>
+        </div>
+
+        <!-- 🏆 Lifetime Progression -->
+        <div class="lifetime-section" id="lifetimeSection">
+            <div class="section-title">LIFETIME RANK</div>
+            <div class="lifetime-title-display">
+                <div class="lifetime-current-title" id="lifetimeTitleText">Novice 📷</div>
+                <div class="lifetime-score-label"><span id="lifetimeScoreNum">0</span> total pts</div>
+            </div>
+            <div class="progress-track">
+                <div class="progress-fill-bar" id="lifetimeProgressBar" style="width:0%;"></div>
+            </div>
+            <div class="progress-milestones">
+                <span>0</span><span>Enthusiast 501</span><span>Lens Master 2001</span><span>Visionary 5000+</span>
+            </div>
+            <div style="font-size:11px;color:#555;margin-top:10px;text-align:right;" id="lifetimeNextLabel"></div>
+        </div>
+
+        <!-- 📊 Quick Stats Grid -->
+        <div class="stats-grid" id="statsGrid" style="display:none;">
+            <div class="stat-card">
+                <div class="stat-icon">📸</div>
+                <div class="stat-num" id="statPhotoCount">0</div>
+                <div class="stat-label">Photos</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">❤️</div>
+                <div class="stat-num" id="statTotalLikes">0</div>
+                <div class="stat-label">Total Likes</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">⭐</div>
+                <div class="stat-num" id="statAvgRating">0</div>
+                <div class="stat-label">Avg Rating</div>
+            </div>
+
+        </div>
+
+        <!-- Achievements -->
+        <div class="achievements-section">
+            <div class="section-title">ACHIEVEMENTS</div>
+            <div class="medals-container" id="medalsContainer">
+                <div class="loading">Loading achievements...</div>
+            </div>
+        </div>
+
+        <!-- Gallery -->
+        <div class="gallery-section">
+            <div class="section-title">Gallery</div>
+            <div class="gallery-grid" id="galleryGrid">
+                <div class="loading">Loading gallery...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+<div class="bottom-nav">
+    <button class="nav-item" onclick="window.location.href='ranking.html'">
+        <img src="statistics.svg" alt="Statistics">
+    </button>
+
+    <button class="nav-item" onclick="window.location.href='index.html'">
+        <img src="home.svg" alt="Home">
+    </button>
+    <button class="nav-item" onclick="window.location.href='message.html'">
+        <img src="msg.svg" alt="Messages">
+    </button>
+    <button class="nav-item active" id="navProfileBtn" onclick="window.location.href='profile.html'">
+        <img id="navProfilePic" src="profile.svg" alt="Profile" class="nav-profile-pic">
+    </button>
+</div>
+
+    <!-- Avatar Upload Modal -->
+    <div class="modal" id="avatarModal">
+        <div class="modal-content">
+            <h2 class="modal-title">Update Profile Picture</h2>
+            <img id="avatarPreview" class="avatar-preview" src="" alt="Preview">
+            
+            <div class="file-input-wrapper">
+                <label for="avatarInput" class="file-input-label">
+                    📸 Select Photo
+                </label>
+                <input type="file" id="avatarInput" accept="image/*" onchange="previewAvatar(event)">
+            </div>
+
+            <button class="btn btn-primary" onclick="uploadAvatar()" id="uploadBtn">Upload</button>
+            <button class="btn btn-secondary" onclick="closeAvatarModal()">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Fullscreen Photo Viewer -->
+    <div class="photo-viewer" id="photoViewer">
+        <!-- Blurred Background -->
+        <div class="viewer-background">
+            <img id="viewerBackgroundImg" src="" alt="Background">
+        </div>
+
+        <!-- Main Content -->
+        <div class="viewer-content">
+            <!-- Header -->
+            <div class="viewer-header">
+                <button class="viewer-close-btn" onclick="closePhotoViewer()">✕</button>
+                <div class="viewer-info" id="viewerInfo">Photo</div>
+                <button class="viewer-delete-btn" onclick="deletePhotoFromViewer()">🗑️ Delete</button>
+            </div>
+
+            <!-- Photo Container -->
+            <div class="viewer-photo-container">
+                <img id="viewerPhoto" class="viewer-photo" src="" alt="Photo">
+            </div>
+
+            <!-- Footer -->
+            <div class="viewer-footer">
+                <div class="viewer-rating" id="viewerRating">Rating: 0/77</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Dialog -->
+    <div class="delete-dialog" id="deleteDialog">
+        <div class="delete-dialog-content">
+            <div class="delete-dialog-icon">⚠️</div>
+            <h2 class="delete-dialog-title">Delete Photo?</h2>
+            <p class="delete-dialog-text">This will remove the photo from your profile and the main feed. The image will remain on ImgBB servers but won't be visible on the website.</p>
+            <div class="delete-dialog-actions">
+                <button class="dialog-btn dialog-btn-cancel" onclick="closeDeleteDialog()">Cancel</button>
+                <button class="dialog-btn dialog-btn-delete" id="confirmDeleteBtn" onclick="confirmDelete()">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { getDatabase, ref, onDisconnect, set, serverTimestamp as rtdbServerTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, onAuthStateChanged, setPersistence, browserLocalPersistence } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore, doc, getDoc, updateDoc, deleteDoc, collection, query, orderBy, getDocs, where, onSnapshot, increment } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        const firebaseConfig = {
+        apiKey: "AIzaSyD3rQ3l-AlnJhCOCcA7_h2rQHfdxDz1Of0",
+        authDomain: "shutter-soul.firebaseapp.com",
+        projectId: "shutter-soul",
+        storageBucket: "shutter-soul.appspot.com",
+        messagingSenderId: "602126305011",
+        appId: "1:602126305011:web:c059836dae27a208e95986",
+        measurementId: "G-MSSSHJKN28",
+        // ✅ FIX: Added the mandatory Asia database URL so presence works
+        databaseURL: "https://shutter-soul-default-rtdb.asia-southeast1.firebasedatabase.app" 
+    };
+
+    // ✅ FIX: Ordered correctly. App MUST be initialized before db and rtdb
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const rtdb = getDatabase(app);
+        setPersistence(auth, browserLocalPersistence).catch(console.error);
+
+        const IMGBB_API_KEY = 'dc7cfbde88ec48894781740d1d8ff64d';
+
+        // ✅ BUG FIX 2 — Timezone-safe date helpers
+        function getLocalDate() { return new Date().toLocaleDateString('en-CA'); }
+        function getLocalMonthYear() { return getLocalDate().slice(0, 7); }
+        let selectedAvatarFile = null;
+        let currentUser = null;
+        let currentPhotoToDelete = null;
+        let currentPhotoMonthYear = null; // track which month the photo belongs to
+        let galleryPhotos = [];
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                setTimeout(() => {
+                    if (!auth.currentUser && !localStorage.getItem('shutterSoulLoggedIn')) {
+                        window.location.href = 'login.html';
+                    }
+                }, 800);
+                return;
+            }
+            currentUser = user;
+            localStorage.setItem('shutterSoulLoggedIn', 'true');
+            await loadProfile();
+        });
+
+        async function loadProfile() {
+            try {
+                const userSnap = await getDoc(doc(db, 'users', currentUser.uid));
+                const userData = userSnap.data() || {};
+
+                document.getElementById('profileName').textContent = userData.displayName || currentUser.email?.split('@')[0] || 'User';
+                const avatarURL = userData.photoURL || 'data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'50\' fill=\'%23e91e63\'/%3E%3C/svg%3E';
+                document.getElementById('profileAvatar').src = avatarURL;
+                document.getElementById('avatarPreview').src = avatarURL;
+
+                // ─── 🔥 Streak Display ───────────────────────────────────
+                const streak = userData.currentStreak || 0;
+                const longest = userData.longestStreak || 0;
+                if (streak > 0) {
+                    document.getElementById('streakCard').style.display = 'flex';
+                    document.getElementById('profileStreakNum').textContent = streak;
+                    document.getElementById('profileLongestStreak').textContent = `Longest: ${longest} day${longest !== 1 ? 's' : ''}`;
+                }
+
+                // ─── 🏆 Lifetime Progression ─────────────────────────────
+                const lifetimeScore = userData.lifetimeScore || 0;
+                const milestones = [0, 501, 2001, 5000];
+                const titles = ['Novice 📷', 'Enthusiast 🥉', 'Lens Master 🥈', 'Visionary 🥇'];
+                let currentTier = 0;
+                for (let i = milestones.length - 1; i >= 0; i--) {
+                    if (lifetimeScore >= milestones[i]) { currentTier = i; break; }
+                }
+                const currentTitle = titles[currentTier];
+                const nextMilestone = milestones[currentTier + 1] || null;
+                const tierStart = milestones[currentTier];
+                const progressPct = nextMilestone
+                    ? Math.min(100, ((lifetimeScore - tierStart) / (nextMilestone - tierStart)) * 100)
+                    : 100;
+
+                document.getElementById('lifetimeTitleText').textContent = currentTitle;
+                document.getElementById('lifetimeScoreNum').textContent = lifetimeScore.toLocaleString();
+                document.getElementById('lifetimeProgressBar').style.width = progressPct + '%';
+                if (nextMilestone) {
+                    document.getElementById('lifetimeNextLabel').textContent = 
+                        `${nextMilestone - lifetimeScore} pts to ${titles[currentTier + 1]}`;
+                } else {
+                    document.getElementById('lifetimeNextLabel').textContent = '🥇 Maximum Rank Achieved!';
+                }
+
+                // ─── 📊 Quick Stats ───────────────────────────────────────
+                const currentMonthYear = getLocalMonthYear();
+                let currentMonthScore = 0;
+                let photoCount = 0;
+                let totalLikes = 0;
+                let totalRating = 0;
+
+                try {
+                    const monthSnap = await getDocs(collection(db, 'dailyUploads', currentMonthYear, currentUser.uid));
+                    monthSnap.forEach(d => { 
+                        const data = d.data();
+                        photoCount++;
+                        totalLikes += data.likes || 0;
+                        totalRating += data.rating || 0;
+
+                        // ✅ FIX (Profile Page Discrepancy): Use accurate multipliers
+                        // to match the leaderboard formula.
+                        const rawLikes   = data.likes || 0;
+                        const multiplier = data.goldenHourMultiplier || 1.0;
+                        currentMonthScore += (data.rating || 0) + Math.round(rawLikes * multiplier);
+                    });
+                } catch (_) {}
+
+                document.getElementById('statPhotoCount').textContent = photoCount;
+                document.getElementById('statTotalLikes').textContent = totalLikes;
+                document.getElementById('statAvgRating').textContent = photoCount > 0 ? Math.round(totalRating / photoCount) : 0;
+                document.getElementById('statsGrid').style.display = 'grid';
+
+                const rank = await calculateRank(currentUser.uid, currentMonthScore, currentMonthYear);
+                await loadAchievements(rank);
+                await loadGallery();
+            } catch (e) {
+                console.error('Error loading profile:', e);
+            }
+        }
+
+        async function loadAchievements(liveRank) {
+            const medalsContainer = document.getElementById('medalsContainer');
+            try {
+                let medalsHTML = '';
+                
+                // Fetch Official Past Medals
+                const q = query(collection(db, 'users', currentUser.uid, 'achievements'), orderBy('awardedAt', 'desc'));
+                const snap = await getDocs(q);
+                
+                snap.forEach(docSnap => {
+                    const data = docSnap.data();
+                    const medalEmoji = data.medal === 'gold' ? '🥇' : data.medal === 'silver' ? '🥈' : '🥉';
+                    medalsHTML += `
+                        <div class="medal">
+                            ${medalEmoji}
+                            <div class="medal-label">${data.monthYear} (#${data.position})</div>
+                        </div>
+                    `;
+                });
+
+                // 🚨 Use the exact same rank from the stats card
+                if (liveRank > 0 && liveRank <= 3) {
+                    const currentMedal = liveRank === 1 ? '🥇' : liveRank === 2 ? '🥈' : '🥉';
+                    medalsHTML = `
+                        <div class="medal" style="opacity: 0.8; animation: pulse 2s infinite;">
+                            ${currentMedal}
+                            <div class="medal-label" style="color:#0cc0df;">Current Rank #${liveRank}</div>
+                        </div>
+                    ` + medalsHTML;
+                }
+
+                if (medalsHTML === '') {
+                    medalsContainer.innerHTML = '<p style="color: #666; text-align: center;">Upload daily to earn a top 3 medal!</p>';
+                } else {
+                    medalsContainer.innerHTML = medalsHTML;
+                }
+            } catch (e) {
+                console.error('Error loading achievements:', e);
+                medalsContainer.innerHTML = '<p style="color: #666;">No achievements yet</p>';
+            }
+        }
+
+        async function calculateRank(userId, userScore, monthYear) {
+            try {
+                // ✅ FIX: The backend does not write a `position` field, only `totalScore`.
+                // Fetch the whole leaderboard collection, sort by score, then find this
+                // user's index — exactly the same approach used in ranking.html.
+                const rankingsRef = collection(db, `monthlyRankings/${monthYear}/users`);
+                const snap = await getDocs(rankingsRef);
+                const rankings = [];
+
+                snap.forEach(doc => rankings.push(doc.data()));
+
+                // Sort highest score first
+                rankings.sort((a, b) => (b.totalScore || 0) - (a.totalScore || 0));
+
+                // findIndex returns -1 if not found; rank is 1-based
+                const rankIndex = rankings.findIndex(r => r.userId === userId);
+                const actualRank = rankIndex !== -1 ? rankIndex + 1 : 0;
+
+                const rankElement = document.getElementById('userRank');
+                if (rankElement) rankElement.textContent = actualRank > 0 ? `#${actualRank}` : 'N/A';
+
+                return actualRank;
+            } catch (error) {
+                console.error('❌ Rank error:', error);
+                return 0;
+            }
+        }
+
+        // Helper: generate all monthYear strings from app start to now (newest first)
+        function buildMonthsQueue(startMonth = '2025-01') {
+            const months = [];
+            const [sy, sm] = startMonth.split('-').map(Number);
+            const now = new Date();
+            const endY = now.getFullYear();
+            const endM = now.getMonth() + 1;
+            let y = sy, m = sm;
+            while (y < endY || (y === endY && m <= endM)) {
+                months.push(`${y}-${String(m).padStart(2, '0')}`);
+                m++;
+                if (m > 12) { m = 1; y++; }
+            }
+            return months.reverse();
+        }
+
+        let galleryMonthQueue = [];
+        let galleryMonthIdx   = 0;
+        let galleryAllLoaded  = false;
+
+        async function loadGallery() {
+            const galleryGrid = document.getElementById('galleryGrid');
+            galleryGrid.innerHTML = '<div class="loading">Loading gallery...</div>';
+            galleryPhotos = [];
+            galleryMonthQueue = buildMonthsQueue('2025-01');
+            galleryMonthIdx   = 0;
+            galleryAllLoaded  = false;
+
+            // Load current month first
+            await loadNextGalleryMonth();
+
+            if (galleryPhotos.length === 0) {
+                // Try one more month in case current month is empty
+                await loadNextGalleryMonth();
+            }
+
+            renderGallery(true);
+        }
+
+        async function loadNextGalleryMonth() {
+            if (galleryMonthIdx >= galleryMonthQueue.length) {
+                galleryAllLoaded = true;
+                return;
+            }
+            const monthYear = galleryMonthQueue[galleryMonthIdx++];
+            try {
+                const uploadsCol = collection(db, `dailyUploads/${monthYear}/${currentUser.uid}`);
+                const snap = await getDocs(uploadsCol);
+                snap.forEach(docSnap => {
+                    const data = docSnap.data();
+                    galleryPhotos.push({
+                        id: docSnap.id,
+                        monthYear,
+                        imageUrl: data.imageUrl,
+                        rating: data.rating || 0,
+                        uploadTimestamp: data.uploadTimestamp || 0
+                    });
+                });
+            } catch (err) { /* month has no data */ }
+
+            if (galleryMonthIdx >= galleryMonthQueue.length) galleryAllLoaded = true;
+        }
+
+        function renderGallery(reset = false) {
+            const galleryGrid = document.getElementById('galleryGrid');
+
+            // Sort newest first
+            galleryPhotos.sort((a, b) => b.uploadTimestamp - a.uploadTimestamp);
+
+            if (galleryPhotos.length === 0) {
+                galleryGrid.innerHTML = `
+                    <div class="empty-gallery" style="grid-column: 1 / -1;">
+                        <p>📷</p>
+                        <p>No photos uploaded yet</p>
+                    </div>`;
+                return;
+            }
+
+            // Build HTML with lazy loading on every image
+            let galleryHTML = '';
+            galleryPhotos.forEach((photo, index) => {
+                galleryHTML += `
+                    <div class="gallery-item">
+                        <img src="${photo.imageUrl}" alt="Photo" loading="lazy" onclick="openPhotoViewer(${index})">
+                        <button class="delete-btn" onclick="deletePhoto('${photo.id}', event)">🗑️</button>
+                        <div class="photo-rating-badge">${photo.rating}/77</div>
+                    </div>
+                `;
+            });
+
+            // Add "Load older photos" button if there are more months
+            if (!galleryAllLoaded) {
+                galleryHTML += `
+                    <div style="grid-column:1/-1;text-align:center;padding:20px;">
+                        <button id="loadOlderBtn" onclick="loadOlderPhotos()"
+                            style="background:#222;color:#0cc0df;border:1px solid #0cc0df;border-radius:8px;
+                                   padding:10px 24px;font-size:14px;cursor:pointer;">
+                            Load older photos
+                        </button>
+                    </div>`;
+            } else if (galleryPhotos.length > 0) {
+                galleryHTML += `
+                    <div style="grid-column:1/-1;text-align:center;padding:12px;color:#555;font-size:13px;">
+                        All photos loaded ✓
+                    </div>`;
+            }
+
+            galleryGrid.innerHTML = galleryHTML;
+        }
+
+        window.loadOlderPhotos = async function() {
+            const btn = document.getElementById('loadOlderBtn');
+            if (btn) { btn.textContent = 'Loading…'; btn.disabled = true; }
+            await loadNextGalleryMonth();
+            renderGallery(false);
+        };
+
+        // Photo Viewer Functions
+        window.openPhotoViewer = function(index) {
+            if (index < 0 || index >= galleryPhotos.length) return;
+
+            const photo = galleryPhotos[index];
+            const viewer = document.getElementById('photoViewer');
+            const viewerPhoto = document.getElementById('viewerPhoto');
+            const viewerBackgroundImg = document.getElementById('viewerBackgroundImg');
+            const viewerRating = document.getElementById('viewerRating');
+            const viewerInfo = document.getElementById('viewerInfo');
+
+            // Set photo and background
+            viewerPhoto.src = photo.imageUrl;
+            viewerBackgroundImg.src = photo.imageUrl;
+            viewerRating.textContent = `Rating: ${photo.rating}/77`;
+            viewerInfo.textContent = new Date(photo.uploadTimestamp).toLocaleDateString();
+
+            // Store current photo for delete
+            currentPhotoToDelete = photo.id;
+            currentPhotoMonthYear = photo.monthYear;
+
+            // Show viewer
+            viewer.classList.add('active');
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        };
+
+        window.closePhotoViewer = function() {
+            const viewer = document.getElementById('photoViewer');
+            viewer.classList.remove('active');
+            currentPhotoToDelete = null;
+            currentPhotoMonthYear = null;
+            document.body.style.overflow = ''; // Restore scrolling
+        };
+
+        window.deletePhotoFromViewer = function() {
+            if (!currentPhotoToDelete) return;
+            openDeleteDialog(currentPhotoToDelete);
+        };
+
+        window.deletePhoto = function(photoId, event) {
+            event.stopPropagation(); // Prevent opening viewer
+            openDeleteDialog(photoId);
+        };
+
+        window.openDeleteDialog = function(photoId) {
+            currentPhotoToDelete = photoId;
+            // Find monthYear for this photo from galleryPhotos array
+            const found = galleryPhotos.find(p => p.id === photoId);
+            currentPhotoMonthYear = found ? found.monthYear : getLocalMonthYear();
+            document.getElementById('deleteDialog').classList.add('active');
+        };
+
+        window.closeDeleteDialog = function() {
+            document.getElementById('deleteDialog').classList.remove('active');
+            currentPhotoToDelete = null;
+            currentPhotoMonthYear = null;
+        };
+
+        window.confirmDelete = async function() {
+            if (!currentPhotoToDelete) return;
+
+            const deleteBtn = document.getElementById('confirmDeleteBtn');
+            const originalText = deleteBtn.textContent;
+            
+            try {
+                // Disable button and show loading state
+                deleteBtn.disabled = true;
+                deleteBtn.textContent = 'Deleting...';
+
+                // Use the photo's own monthYear so old photos are deleted from the correct path
+                const photoMonth = currentPhotoMonthYear || getLocalMonthYear();
+                const photoDocRef = doc(db, `dailyUploads/${photoMonth}/${currentUser.uid}`, currentPhotoToDelete);
+                
+                console.log('🗑️ Attempting to delete photo:', currentPhotoToDelete);
+                console.log('📍 Path:', `dailyUploads/${photoMonth}/${currentUser.uid}/${currentPhotoToDelete}`);
+                
+                // Get photo data to update user score
+                const photoDoc = await getDoc(photoDocRef);
+                
+                if (!photoDoc.exists()) {
+                    console.error('❌ Photo document not found');
+                    throw new Error('Photo not found');
+                }
+
+                const photoData = photoDoc.data();
+                const rating = photoData.rating || 0;
+
+                console.log('📊 Photo rating:', rating);
+
+                // Delete photo document from Firestore
+                // Note: This doesn't delete from ImgBB, only removes the reference
+                await deleteDoc(photoDocRef);
+                console.log('✅ Photo document deleted from Firestore');
+
+                // Update user's total score
+                const userRef = doc(db, 'users', currentUser.uid);
+                const userDoc = await getDoc(userRef);
+                
+                if (userDoc.exists()) {
+                    // ✅ FIX 3: Use atomic increment instead of manual read-modify-write to prevent race conditions
+                    await updateDoc(userRef, {
+                        totalScore: increment(-rating)
+                    });
+
+                    console.log('📊 Score atomically decremented by:', rating);
+                }
+
+                console.log('✅ Photo deleted successfully');
+
+                // Close dialogs and reload
+                closeDeleteDialog();
+                closePhotoViewer();
+                await loadGallery();
+
+                // Show success message
+                alert('✅ Photo deleted successfully!');
+
+            } catch (error) {
+                console.error('❌ Error deleting photo:', error);
+                console.error('Error details:', error.message);
+                console.error('Error code:', error.code);
+                
+                let errorMessage = 'Failed to delete photo. ';
+                
+                if (error.code === 'permission-denied') {
+                    errorMessage += '\n\n⚙️ You need to update your Firestore security rules.\n\nAdd this rule:\n\nmatch /dailyUploads/{month}/{userId}/{document=**} {\n  allow read, write, delete: if request.auth.uid == userId;\n}';
+                } else if (error.message) {
+                    errorMessage += error.message;
+                } else {
+                    errorMessage += 'Please try again.';
+                }
+                
+                alert('❌ ' + errorMessage);
+            } finally {
+                // Re-enable button
+                deleteBtn.disabled = false;
+                deleteBtn.textContent = originalText;
+            }
+        };
+
+        // Avatar Functions
+        window.openAvatarModal = function () {
+            document.getElementById('avatarModal').classList.add('active');
+        };
+
+        window.closeAvatarModal = function () {
+            document.getElementById('avatarModal').classList.remove('active');
+            selectedAvatarFile = null;
+        };
+
+        window.previewAvatar = function (event) {
+            selectedAvatarFile = event.target.files[0];
+            if (selectedAvatarFile) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('avatarPreview').src = e.target.result;
+                };
+                reader.readAsDataURL(selectedAvatarFile);
+            }
+        };
+
+        window.uploadAvatar = async function () {
+            if (!selectedAvatarFile) {
+                alert('Please select an image');
+                return;
+            }
+            const uploadBtn = document.getElementById('uploadBtn');
+            uploadBtn.disabled = true;
+            uploadBtn.textContent = 'Uploading...';
+            try {
+                const base64Image = await fileToBase64(selectedAvatarFile);
+                const formData = new FormData();
+                formData.append('key', IMGBB_API_KEY);
+                formData.append('image', base64Image.split(',')[1]);
+                const response = await fetch('https://api.imgbb.com/1/upload', { method: 'POST', body: formData });
+                const result = await response.json();
+                if (!result.success) throw new Error('ImgBB upload failed');
+                const imageURL = result.data.url;
+                await updateDoc(doc(db, 'users', currentUser.uid), { photoURL: imageURL });
+                document.getElementById('profileAvatar').src = imageURL;
+                window.closeAvatarModal();
+                alert('Profile picture updated successfully!');
+            } catch (error) {
+                console.error('Upload error:', error);
+                alert('Upload failed: ' + error.message);
+            } finally {
+                uploadBtn.disabled = false;
+                uploadBtn.textContent = 'Upload';
+            }
+        };
+
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // Close viewer on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (document.getElementById('photoViewer').classList.contains('active')) {
+                    closePhotoViewer();
+                }
+                if (document.getElementById('deleteDialog').classList.contains('active')) {
+                    closeDeleteDialog();
+                }
+            }
+        });
+// GLOBAL PRESENCE & CALL TRACKER
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                const myRef = ref(rtdb, `presence/${user.uid}`);
+                
+                // Set online when page loads
+                set(myRef, { state: 'online', last_changed: rtdbServerTimestamp(), userId: user.uid });
+                onDisconnect(myRef).set({ state: 'offline', last_changed: rtdbServerTimestamp(), userId: user.uid });
+
+                document.addEventListener('visibilitychange', () => {
+                    set(myRef, {
+                        state: document.hidden ? 'offline' : 'online',
+                        last_changed: rtdbServerTimestamp(),
+                        userId: user.uid
+                    });
+                });
+
+
+                // ✅ FIX: RACE-CONDITION PROOF GLOBAL INCOMING CALL BANNER
+                const callsQuery = query(collection(db, 'calls'), where('calleeId', '==', user.uid), where('status', '==', 'ringing'));
+                onSnapshot(callsQuery, (snap) => {
+                    snap.docChanges().forEach((change) => {
+                        const callData = change.doc.data();
+                        const bannerId = `globalCallBanner-${callData.callId}`; // Unique ID per call
+
+                        if (change.type === 'added') {
+                            // Tolerate client clock drift up to 2 minutes
+                            if (Date.now() - (callData.createdAt?.toMillis?.() || Date.now()) > 120000) return;
+
+                            // Fetch user but DON'T block the main thread
+                            getDoc(doc(db, 'users', callData.callerId)).then(cdSnap => {
+                                
+                                // 🚨 CRITICAL: Check the database ONE more time before creating the banner.
+                                // If the caller hung up while we were downloading their name, abort!
+                                getDoc(doc(db, 'calls', callData.callId)).then(currentCall => {
+                                    if (currentCall.exists() && currentCall.data().status === 'ringing') {
+                                        let callerName = 'Someone';
+                                        const cd = cdSnap.exists() ? cdSnap.data() : {};
+                                        callerName = cd.displayName || cd.customName || cd.name || cd.email?.split('@')[0] || 'Someone';
+
+                                        if (!document.getElementById(bannerId)) {
+                                            const banner = document.createElement('div');
+                                            banner.id = bannerId;
+                                            banner.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg, #667eea, #764ba2);color:white;padding:15px 30px;border-radius:50px;box-shadow:0 10px 30px rgba(0,0,0,0.6);z-index:99999;display:flex;align-items:center;gap:15px;cursor:pointer;transition:all 0.3s;animation:slideDown 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);';
+                                            banner.innerHTML = `
+                                                <span style="font-size:24px; animation: ring 1s infinite ease-in-out;">📞</span> 
+                                                <div>
+                                                    <div style="font-weight:bold; font-family: 'Segoe UI', Tahoma, sans-serif;">${callerName} is calling...</div>
+                                                    <div style="font-size:12px; opacity:0.9;">Click to answer</div>
+                                                </div>`;
+                                            banner.onclick = () => window.location.href = `message.html?callId=${callData.callId}&action=accept`;
+                                            
+                                            if (!document.getElementById('bannerStyles')) {
+                                                const style = document.createElement('style');
+                                                style.id = 'bannerStyles';
+                                                style.textContent = `
+                                                    @keyframes slideDown { from { top: -100px; opacity: 0; } to { top: 20px; opacity: 1; } }
+                                                    @keyframes ring { 0% { transform: rotate(0); } 10% { transform: rotate(15deg); } 20% { transform: rotate(-15deg); } 30% { transform: rotate(10deg); } 40% { transform: rotate(-10deg); } 50% { transform: rotate(0); } 100% { transform: rotate(0); } }
+                                                `;
+                                                document.head.appendChild(style);
+                                            }
+                                            document.body.appendChild(banner);
+                                            
+                                            // Auto-cleanup DOM if it somehow gets stuck
+                                            setTimeout(() => { if(banner) banner.remove(); }, 65000); 
+                                        }
+                                    }
+                                });
+                            });
+                        } else if (change.type === 'modified' || change.type === 'removed') {
+                            // Remove the specific banner associated with this callId
+                            if (callData.status !== 'ringing' || change.type === 'removed') {
+                                const banner = document.getElementById(bannerId);
+                                if (banner) banner.remove();
+                            }
+                        }
+                    });
+                });
+            }
+        });
+    </script>
+
+    <script>
+    // ✅ Set nav profile picture to user's actual photo
+    (function() {
+        const cached = localStorage.getItem('shutterSoulProfilePic');
+        if (cached) {
+            const pic = document.getElementById('navProfilePic');
+            if (pic) { pic.src = cached; pic.style.borderColor = '#0cc0df'; }
+        }
+    })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebChat - Settings</title>
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --tertiary-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --success-gradient: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            --warning-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+
+            --male-glow: rgba(0, 191, 255, 0.3);
+            --female-glow: rgba(255, 20, 147, 0.3);
+
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --bg-tertiary: #e2e8f0;
+
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --text-muted: #94a3b8;
+            --text-light: #ffffff;
+
+            --border-color: #e2e8f0;
+            --border-hover: #cbd5e1;
+
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+
+            --radius-sm: 0.375rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+            --radius-xl: 1rem;
+            --radius-full: 9999px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: var(--primary-gradient);
+            min-height: 100vh;
+            color: var(--text-primary);
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        .animated-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--primary-gradient);
+            z-index: -1;
+        }
+
+        .animated-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--secondary-gradient);
+            opacity: 0.3;
+            animation: colorShift 10s ease-in-out infinite;
+        }
+
+        @keyframes colorShift {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Back Button */
+        .back-button {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: var(--text-light);
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-full);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateX(-4px) scale(1.05);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .back-button svg {
+            width: 20px;
+            height: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .back-button:hover svg {
+            transform: translateX(-2px);
+        }
+
+        /* Main Container */
+        .settings-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem;
+            position: relative;
+        }
+
+        /* Profile Card with Subtle Gender Glow */
+        .profile-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius-xl);
+            padding: 3rem 2.5rem;
+            text-align: center;
+            box-shadow: var(--shadow-xl);
+            max-width: 400px;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .profile-card.male-glow {
+            border-color: var(--male-glow);
+            box-shadow: 0 0 20px var(--male-glow), var(--shadow-xl);
+        }
+
+        .profile-card.female-glow {
+            border-color: var(--female-glow);
+            box-shadow: 0 0 20px var(--female-glow), var(--shadow-xl);
+        }
+
+        .profile-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--tertiary-gradient);
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        .profile-card.male-glow::before {
+            background: linear-gradient(90deg, transparent, rgba(0, 191, 255, 0.8), transparent);
+        }
+
+        .profile-card.female-glow::before {
+            background: linear-gradient(90deg, transparent, rgba(255, 20, 147, 0.8), transparent);
+        }
+
+        @keyframes shimmer {
+            0%, 100% { transform: translateX(-100%); }
+            50% { transform: translateX(100%); }
+        }
+
+        /* Avatar with Subtle Gender Glow */
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: var(--radius-full);
+            margin: 0 auto 2rem auto;
+            background: var(--success-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--text-light);
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-lg);
+            cursor: pointer;
+        }
+
+        .profile-avatar:hover {
+            transform: scale(1.05) rotate(2deg);
+        }
+
+        .profile-avatar.male {
+            background: var(--tertiary-gradient);
+            box-shadow: 0 0 20px var(--male-glow), var(--shadow-lg);
+        }
+
+        .profile-avatar.female {
+            background: var(--secondary-gradient);
+            box-shadow: 0 0 20px var(--female-glow), var(--shadow-lg);
+        }
+
+        .profile-avatar.male:hover {
+            box-shadow: 0 0 30px rgba(0, 191, 255, 0.5), var(--shadow-xl);
+        }
+
+        .profile-avatar.female:hover {
+            box-shadow: 0 0 30px rgba(255, 20, 147, 0.5), var(--shadow-xl);
+        }
+
+        /* Gender Toggle */
+        .gender-toggle {
+            position: absolute;
+            bottom: -10px;
+            right: -10px;
+            width: 40px;
+            height: 40px;
+            background: var(--warning-gradient);
+            border: none;
+            border-radius: var(--radius-full);
+            color: var(--text-light);
+            font-size: 1.25rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .gender-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* Username Section */
+        .username-section {
+            margin-bottom: 2.5rem;
+        }
+
+        .username-label {
+            color: var(--text-light);
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            opacity: 0.9;
+        }
+
+        .username-container {
+            position: relative;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius-lg);
+            padding: 1rem 1.25rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .username-container.male-border {
+            border-color: var(--male-glow);
+            box-shadow: 0 0 10px rgba(0, 191, 255, 0.1);
+        }
+
+        .username-container.female-border {
+            border-color: var(--female-glow);
+            box-shadow: 0 0 10px rgba(255, 20, 147, 0.1);
+        }
+
+        .username-container:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .username-container.male-border:hover {
+            border-color: rgba(0, 191, 255, 0.5);
+            box-shadow: 0 0 15px rgba(0, 191, 255, 0.2);
+        }
+
+        .username-container.female-border:hover {
+            border-color: rgba(255, 20, 147, 0.5);
+            box-shadow: 0 0 15px rgba(255, 20, 147, 0.2);
+        }
+
+        .username-display {
+            color: var(--text-light);
+            font-size: 1.125rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            min-height: 1.5rem;
+        }
+
+        .username-input {
+            background: transparent;
+            border: none;
+            color: var(--text-light);
+            font-size: 1.125rem;
+            font-weight: 600;
+            text-align: center;
+            width: 100%;
+            outline: none;
+        }
+
+        .username-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .edit-icon {
+            width: 16px;
+            height: 16px;
+            opacity: 0.7;
+            transition: all 0.3s ease;
+        }
+
+        .username-display:hover .edit-icon {
+            opacity: 1;
+            transform: scale(1.2);
+        }
+
+        /* Logout Button */
+        .logout-button {
+            background: var(--warning-gradient);
+            border: none;
+            color: var(--text-light);
+            padding: 1rem 2rem;
+            border-radius: var(--radius-full);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-md);
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .logout-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .logout-button:hover::before {
+            left: 100%;
+        }
+
+        .logout-button:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .logout-button:active {
+            transform: translateY(0);
+        }
+
+        /* Developer Credit */
+        .developer-credit {
+            position: absolute;
+            bottom: 2rem;
+            left: 2rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            animation: colorCycle 8s ease-in-out infinite;
+            z-index: 10;
+        }
+
+        @keyframes colorCycle {
+            0%, 100% { color: #667eea; }
+            25% { color: #f093fb; }
+            50% { color: #4facfe; }
+            75% { color: #43e97b; }
+        }
+
+        /* Loading state */
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid transparent;
+            border-top: 2px solid currentColor;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Success indicator */
+        .saving-indicator {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(67, 233, 123, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(67, 233, 123, 0.3);
+            color: #43e97b;
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-full);
+            font-size: 0.75rem;
+            font-weight: 600;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .saving-indicator.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .back-button {
+                top: 1rem;
+                left: 1rem;
+                padding: 0.5rem 0.75rem;
+                font-size: 0.75rem;
+            }
+
+            .settings-container {
+                padding: 1rem;
+            }
+
+            .profile-card {
+                padding: 2rem 1.5rem;
+            }
+
+            .profile-avatar {
+                width: 100px;
+                height: 100px;
+                font-size: 2.5rem;
+            }
+
+            .developer-credit {
+                bottom: 1rem;
+                left: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .profile-card {
+                margin: 1rem;
+                padding: 1.5rem 1rem;
+            }
+
+            .profile-avatar {
+                width: 80px;
+                height: 80px;
+                font-size: 2rem;
+            }
+
+            .username-display, .username-input {
+                font-size: 1rem;
+            }
+
+            .logout-button {
+                padding: 0.875rem 1.5rem;
+                font-size: 0.875rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="animated-bg"></div>
+
+    <!-- Back Button -->
+    <a href="#" class="back-button" id="backButton">
+        <svg fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"></path>
+        </svg>
+        Back to Chat
+    </a>
+
+    <!-- Saving Indicator -->
+    <div class="saving-indicator" id="savingIndicator">
+        Changes Saved ✓
+    </div>
+
+    <div class="settings-container">
+        <div class="profile-card" id="profileCard">
+            <!-- Profile Avatar -->
+            <div class="profile-avatar" id="profileAvatar">
+                <span id="avatarText">U</span>
+                <button class="gender-toggle" id="genderToggle" title="Toggle Gender">
+                    <span id="genderIcon">⚧</span>
+                </button>
+            </div>
+
+            <!-- Username Section -->
+            <div class="username-section">
+                <div class="username-label">Username</div>
+                <div class="username-container" id="usernameContainer">
+                    <div class="username-display" id="usernameDisplay">
+                        <span id="usernameText">User</span>
+                        <svg class="edit-icon" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"></path>
+                        </svg>
+                    </div>
+                    <input type="text" class="username-input" id="usernameInput" placeholder="Enter your name" style="display: none;" maxlength="20">
+                </div>
+            </div>
+
+            <!-- Email Section -->
+            <div class="username-section" style="margin-top: 1.5rem;">
+                <div class="username-label">Email for Notifications</div>
+                <div class="username-container" style="border-color: rgba(37, 211, 102, 0.3);">
+                    <input type="email" class="username-input" id="emailInput" placeholder="your@email.com" style="display: block; font-size: 0.9rem; text-align: center;">
+                </div>
+                <div style="font-size: 0.7rem; color: rgba(255,255,255,0.6); text-align: center; margin-top: 0.5rem;">
+                    Used for call notifications if push is unavailable
+                </div>
+            </div>
+
+            <!-- Logout Button -->
+            <button class="logout-button" id="logoutButton" style="margin-top: 2rem;">Logout</button>
+        </div>
+    </div>
+
+    <!-- Developer Credit -->
+    <div class="developer-credit">
+        Developed by IAB
+    </div>
+
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore, doc, updateDoc, getDoc, serverTimestamp, deleteDoc, writeBatch, collection, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        import { getDatabase, ref, set as rtdbSet, serverTimestamp as rtdbServerTimestamp, remove as rtdbRemove } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+
+        // Firebase configuration
+        const firebaseConfig = {
+    apiKey: "AIzaSyD3rQ3l-AlnJhCOCcA7_h2rQHfdxDz1Of0",
+    authDomain: "shutter-soul.firebaseapp.com",
+    projectId: "shutter-soul",
+    storageBucket: "shutter-soul.appspot.com",
+    messagingSenderId: "602126305011",
+    appId: "1:602126305011:web:c059836dae27a208e95986",
+    measurementId: "G-MSSSHJKN28",
+    databaseURL: "https://shutter-soul-default-rtdb.asia-southeast1.firebasedatabase.app"
+};
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const rtdb = getDatabase(app);
+
+        let currentUser = null;
+        let currentGender = 'male';
+        let isEditing = false;
+
+        // Check authentication status
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                console.log('User authenticated:', user.email);
+                initializeSettings();
+            } else {
+                console.log('User not authenticated, redirecting...');
+                window.location.href = 'index.html';
+            }
+        });
+
+        // Initialize settings with user data and subtle gender styling
+        async function initializeSettings() {
+            try {
+                const userRef = doc(db, 'users', currentUser.uid);
+                const userSnap = await getDoc(userRef);
+
+                let userData;
+                if (userSnap.exists()) {
+                    userData = userSnap.data();
+                } else {
+                    userData = {
+                        customName: localStorage.getItem('userName') || currentUser.displayName || currentUser.email.split('@')[0],
+                        gender: localStorage.getItem('userGender') || 'male',
+                        email: currentUser.email,
+                        notificationPreference: 'push'
+                    };
+                }
+
+                const displayName = userData.customName || userData.name || currentUser.displayName || currentUser.email.split('@')[0];
+                currentGender = userData.gender || 'male';
+
+                document.getElementById('usernameText').textContent = displayName;
+                document.getElementById('avatarText').textContent = displayName.charAt(0).toUpperCase();
+
+                // ✅ FIX: Show profile photo in avatar
+                if (userData.photoURL) {
+                    const avatar = document.getElementById('profileAvatar');
+                    const avatarText = document.getElementById('avatarText');
+                    const existingImg = avatar.querySelector('img.profile-photo');
+                    if (existingImg) existingImg.remove();
+                    const img = document.createElement('img');
+                    img.src = userData.photoURL;
+                    img.alt = displayName;
+                    img.className = 'profile-photo';
+                    img.style.cssText = 'width:100%;height:100%;border-radius:50%;object-fit:cover;position:absolute;top:0;left:0;z-index:1;';
+                    avatarText.style.visibility = 'hidden';
+                    avatar.style.position = 'relative';
+                    avatar.style.overflow = 'hidden';
+                    avatar.insertBefore(img, avatar.firstChild);
+                    img.onerror = () => { img.remove(); avatarText.style.visibility = 'visible'; };
+                }
+
+                // Load email
+                document.getElementById('emailInput').value = userData.email || currentUser.email || '';
+
+                updateAvatarDisplay();
+                updateProfileCardGlow();
+
+            } catch (error) {
+                console.error('Error loading user data:', error);
+                loadFromLocalStorage();
+            }
+        }
+
+        function loadFromLocalStorage() {
+            const savedGender = localStorage.getItem('userGender') || 'male';
+            const savedUsername = localStorage.getItem('userName') || currentUser.displayName || currentUser.email.split('@')[0];
+
+            currentGender = savedGender;
+            document.getElementById('usernameText').textContent = savedUsername;
+            document.getElementById('avatarText').textContent = savedUsername.charAt(0).toUpperCase();
+            updateAvatarDisplay();
+            updateProfileCardGlow();
+        }
+
+        function updateAvatarDisplay() {
+            const avatar = document.getElementById('profileAvatar');
+            const genderIcon = document.getElementById('genderIcon');
+
+            avatar.classList.remove('male', 'female');
+            avatar.classList.add(currentGender);
+
+            if (currentGender === 'male') {
+                genderIcon.textContent = '♂';
+                genderIcon.title = 'Switch to Female';
+            } else {
+                genderIcon.textContent = '♀';
+                genderIcon.title = 'Switch to Male';
+            }
+        }
+
+        // Subtle profile card glow
+        function updateProfileCardGlow() {
+            const profileCard = document.getElementById('profileCard');
+            const usernameContainer = document.getElementById('usernameContainer');
+
+            profileCard.classList.remove('male-glow', 'female-glow');
+            usernameContainer.classList.remove('male-border', 'female-border');
+
+            if (currentGender === 'male') {
+                profileCard.classList.add('male-glow');
+                usernameContainer.classList.add('male-border');
+            } else {
+                profileCard.classList.add('female-glow');
+                usernameContainer.classList.add('female-border');
+            }
+        }
+
+        async function toggleGender() {
+            currentGender = currentGender === 'male' ? 'female' : 'male';
+            updateAvatarDisplay();
+            updateProfileCardGlow();
+            await saveUserData();
+            showSavingIndicator();
+        }
+
+        function startEditingUsername() {
+            if (isEditing) return;
+
+            isEditing = true;
+            const display = document.getElementById('usernameDisplay');
+            const input = document.getElementById('usernameInput');
+            const currentName = document.getElementById('usernameText').textContent;
+
+            display.style.display = 'none';
+            input.style.display = 'block';
+            input.value = currentName;
+            input.focus();
+            input.select();
+        }
+
+        async function finishEditingUsername() {
+            if (!isEditing) return;
+
+            const input = document.getElementById('usernameInput');
+            const newName = input.value.trim();
+
+            if (newName && newName !== '' && newName.length >= 2) {
+                document.getElementById('usernameText').textContent = newName;
+                document.getElementById('avatarText').textContent = newName.charAt(0).toUpperCase();
+                await saveUserData();
+                showSavingIndicator();
+            }
+
+            resetEditing();
+        }
+
+        function cancelEditingUsername() {
+            resetEditing();
+        }
+
+        function resetEditing() {
+            isEditing = false;
+            document.getElementById('usernameDisplay').style.display = 'flex';
+            document.getElementById('usernameInput').style.display = 'none';
+        }
+
+        async function saveUserData() {
+            const username = document.getElementById('usernameText').textContent;
+            const email = document.getElementById('emailInput').value.trim();
+
+            try {
+                const userRef = doc(db, 'users', currentUser.uid);
+                await updateDoc(userRef, {
+                    customName: username,
+                    name: username,
+                    gender: currentGender,
+                    email: email || currentUser.email,
+                    lastActive: serverTimestamp()
+                });
+
+                localStorage.setItem('userName', username);
+                localStorage.setItem('userGender', currentGender);
+                localStorage.setItem('userEmail', email);
+
+            } catch (error) {
+                console.error('Error saving user data:', error);
+                localStorage.setItem('userName', username);
+                localStorage.setItem('userGender', currentGender);
+            }
+        }
+
+        function showSavingIndicator() {
+            const indicator = document.getElementById('savingIndicator');
+            indicator.classList.add('show');
+            setTimeout(() => indicator.classList.remove('show'), 2000);
+        }
+
+        // ULTIMATE: Fully working logout with complete cleanup
+        async function handleLogout() {
+            if (!confirm('Are you sure you want to logout?')) return;
+
+            const logoutBtn = document.getElementById('logoutButton');
+
+            try {
+                logoutBtn.innerHTML = '<div class="spinner"></div>Logging out...';
+                logoutBtn.disabled = true;
+
+                console.log('🚪 Starting logout process...');
+
+                // 1. Set user offline in realtime database
+                const presenceRef = ref(rtdb, `presence/${currentUser.uid}`);
+                await rtdbSet(presenceRef, {
+                    state: 'offline',
+                    last_changed: rtdbServerTimestamp(),
+                    userId: currentUser.uid // ✅ FIX: Added required field for RTDB validation
+                });
+                console.log('✅ Set offline in realtime DB');
+
+                // 2. Update Firestore user status
+                const userRef = doc(db, 'users', currentUser.uid);
+                await updateDoc(userRef, {
+                    isOnline: false,
+                    lastActive: serverTimestamp(),
+                    sessionId: null
+                });
+                console.log('✅ Updated Firestore status');
+
+                // 3. Clean up any orphaned data
+                try {
+                    // ✅ FIX 4: Typing docs use chatId as the document ID with no 'senderId' field,
+                    // so querying by senderId always returns 0 results. Cleanup is skipped here —
+                    // typing indicators auto-expire naturally when the user goes offline/disconnects.
+                    console.log('✅ Typing cleanup skipped (auto-expires via presence).');
+                } catch (cleanupError) {
+                    console.log('⚠️ Cleanup error (non-critical):', cleanupError);
+                }
+
+                // 4. Clear all localStorage
+                localStorage.clear();
+                console.log('✅ Cleared localStorage');
+
+                // 5. Sign out from Firebase Auth
+                await signOut(auth);
+                console.log('✅ Signed out from Firebase Auth');
+
+                // 6. Redirect to login page
+                window.location.href = 'login.html';
+
+            } catch (error) {
+                console.error('❌ Logout error:', error);
+
+                // Reset button state
+                logoutBtn.innerHTML = 'Logout';
+                logoutBtn.disabled = false;
+
+                // User-friendly error message
+                alert('Error during logout. Please close the browser tab or try refreshing the page.');
+
+                // Force redirect as fallback
+                setTimeout(() => {
+                    localStorage.clear();
+                    window.location.href = 'index.html';
+                }, 2000);
+            }
+        }
+
+        function backToChat() {
+            window.location.href = 'message.html';
+        }
+
+        function setupEventListeners() {
+            document.getElementById('genderToggle').addEventListener('click', toggleGender);
+            document.getElementById('usernameDisplay').addEventListener('click', startEditingUsername);
+
+            const usernameInput = document.getElementById('usernameInput');
+            usernameInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    finishEditingUsername();
+                } else if (e.key === 'Escape') {
+                    cancelEditingUsername();
+                }
+            });
+
+            usernameInput.addEventListener('blur', finishEditingUsername);
+            
+            // Email input auto-save on blur
+            const emailInput = document.getElementById('emailInput');
+            emailInput.addEventListener('blur', async function() {
+                await saveUserData();
+                showSavingIndicator();
+            });
+            
+            document.getElementById('logoutButton').addEventListener('click', handleLogout);
+            document.getElementById('backButton').addEventListener('click', function(e) {
+                e.preventDefault();
+                backToChat();
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', setupEventListeners);
+
+        // ✅ FIX: Handle page visibility with userId included
+        document.addEventListener('visibilitychange', () => {
+            if (currentUser) {
+                const presenceRef = ref(rtdb, `presence/${currentUser.uid}`);
+                const userRef = doc(db, 'users', currentUser.uid);
+
+                if (document.hidden) {
+                    rtdbSet(presenceRef, { 
+                        state: 'offline', 
+                        last_changed: rtdbServerTimestamp(), 
+                        userId: currentUser.uid 
+                    });
+                    updateDoc(userRef, { isOnline: false, lastActive: serverTimestamp() }).catch(console.error);
+                } else {
+                    rtdbSet(presenceRef, { 
+                        state: 'online', 
+                        last_changed: rtdbServerTimestamp(), 
+                        userId: currentUser.uid 
+                    });
+                    updateDoc(userRef, { isOnline: true, lastActive: serverTimestamp() }).catch(console.error);
+                }
+            }
+        });
+
+        // ✅ FIX: Handle tab closing with userId included
+        window.addEventListener('beforeunload', () => {
+            if (currentUser) {
+                rtdbSet(ref(rtdb, `presence/${currentUser.uid}`), {
+                    state: 'offline', 
+                    last_changed: rtdbServerTimestamp(),
+                    userId: currentUser.uid 
+                });
+            }
+        });
+    </script>
+</body>
+</html>

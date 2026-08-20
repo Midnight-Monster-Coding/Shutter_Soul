@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shutter Soul - Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Cormorant+Garamond:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Cormorant Garamond', serif; background: #000; color: #fff; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .container { max-width: 500px; width: 100%; text-align: center; }
+        .logo { font-family: 'Alex Brush', cursive; font-size: 3.5rem; color: #0cc0df; margin-bottom: 15px; }
+        .tagline { font-size: 1.1rem; color: #888; margin-bottom: 50px; letter-spacing: 0.15em; }
+        .welcome-section { display: block; }
+        .welcome-section h2 { font-size: 2rem; margin: 40px 0 15px; font-weight: 400; }
+        .welcome-section p { color: #888; margin-bottom: 40px; font-size: 1.1rem; }
+        .google-login-btn { display: flex; align-items: center; justify-content: center; gap: 12px; background: #fff; color: #000; border: none; padding: 16px 40px; border-radius: 12px; font-size: 1.1rem; font-weight: 500; cursor: pointer; transition: all 0.3s; width: 100%; max-width: 380px; margin: 0 auto; }
+        .google-login-btn:hover { background: #f5f5f5; transform: translateY(-2px); box-shadow: 0 5px 20px rgba(12, 192, 223, 0.3); }
+        .google-login-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .profile-form { display: none; background: rgba(255, 255, 255, 0.03); padding: 40px 30px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.1); }
+        .profile-form h2 { font-size: 2rem; margin-bottom: 30px; color: #0cc0df; font-weight: 400; }
+        .form-group { margin-bottom: 25px; text-align: left; }
+        .form-group label { display: block; margin-bottom: 10px; color: #0cc0df; font-size: 1rem; font-weight: 500; }
+        .form-group input, .form-group select { width: 100%; padding: 14px; border: 1px solid rgba(12, 192, 223, 0.3); background: rgba(255, 255, 255, 0.05); color: #fff; border-radius: 10px; font-size: 1rem; font-family: inherit; transition: all 0.3s; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: #0cc0df; background: rgba(255, 255, 255, 0.08); }
+        .photo-upload { display: flex; flex-direction: column; align-items: center; gap: 15px; }
+        .photo-preview { width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, #d8749c, #c26581); display: flex; align-items: center; justify-content: center; overflow: hidden; border: 3px solid #0cc0df; }
+        .photo-preview img { width: 100%; height: 100%; object-fit: cover; }
+        .photo-preview-icon { font-size: 3rem; color: rgba(255, 255, 255, 0.5); }
+        .photo-upload-btn { background: rgba(12, 192, 223, 0.2); color: #0cc0df; border: 1px solid #0cc0df; padding: 10px 25px; border-radius: 8px; cursor: pointer; font-size: 0.95rem; transition: all 0.3s; }
+        .photo-upload-btn:hover { background: rgba(12, 192, 223, 0.3); }
+        .submit-btn { width: 100%; background: #0cc0df; color: #000; border: none; padding: 16px; border-radius: 12px; font-size: 1.2rem; font-weight: 600; cursor: pointer; margin-top: 30px; transition: all 0.3s; }
+        .submit-btn:hover { background: #0aa0bf; transform: translateY(-2px); box-shadow: 0 5px 20px rgba(12, 192, 223, 0.4); }
+        .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .error-message { background: rgba(255, 77, 77, 0.2); border: 1px solid #ff4d4d; color: #ff8888; padding: 15px; border-radius: 10px; margin-bottom: 20px; display: none; }
+        .loading { display: inline-block; width: 20px; height: 20px; border: 3px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top-color: #fff; animation: spin 0.6s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @media (max-width: 600px) { .logo { font-size: 2.5rem; } .profile-form { padding: 30px 20px; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="logo">Shutter Soul</h1>
+        <p class="tagline">Capture. Compete. Conquer.</p>
+
+        <div id="welcomeSection" class="welcome-section">
+            <h2>Welcome to Shutter Soul</h2>
+            <p>Join the daily photo competition</p>
+            <button id="googleLoginBtn" class="google-login-btn">
+                <svg width="24" height="24" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                Continue with Google
+            </button>
+        </div>
+
+        <div id="profileForm" class="profile-form">
+            <h2>Complete Your Profile</h2>
+            <div id="errorMessage" class="error-message"></div>
+            <div class="form-group">
+                <label>Profile Photo *</label>
+                <div class="photo-upload">
+                    <div id="photoPreview" class="photo-preview">
+                        <span class="photo-preview-icon">📷</span>
+                    </div>
+                    <label for="profilePhotoInput" class="photo-upload-btn">Choose Photo</label>
+                    <input type="file" id="profilePhotoInput" accept="image/*" style="display: none;">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="userName">Name *</label>
+                <input type="text" id="userName" placeholder="Enter your name" required>
+            </div>
+            <div class="form-group">
+                <label for="userGender">Gender *</label>
+                <select id="userGender" required>
+                    <option value="">Select Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                    <option value="Prefer not to say">Prefer not to say</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="userAge">Age *</label>
+                <input type="number" id="userAge" placeholder="Enter your age" min="13" max="120" required>
+            </div>
+            <button id="submitProfileBtn" class="submit-btn">Create Profile</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, setPersistence, browserLocalPersistence } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore, doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyD3rQ3l-AlnJhCOCcA7_h2rQHfdxDz1Of0",
+            authDomain: "shutter-soul.firebaseapp.com",
+            projectId: "shutter-soul",
+            storageBucket: "shutter-soul.appspot.com",
+            messagingSenderId: "602126305011",
+            appId: "1:602126305011:web:c059836dae27a208e95986"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const provider = new GoogleAuthProvider();
+        const IMGBB_API_KEY = 'dc7cfbde88ec48894781740d1d8ff64d';
+
+        // Ensure session persists across reloads/tabs
+        setPersistence(auth, browserLocalPersistence).catch(err => console.error('Persistence error:', err));
+
+        let currentUser = null;
+        let profilePhotoFile = null;
+
+        const welcomeSection = document.getElementById('welcomeSection');
+        const profileForm = document.getElementById('profileForm');
+        const googleLoginBtn = document.getElementById('googleLoginBtn');
+        const submitProfileBtn = document.getElementById('submitProfileBtn');
+        const errorMessage = document.getElementById('errorMessage');
+        const profilePhotoInput = document.getElementById('profilePhotoInput');
+        const photoPreview = document.getElementById('photoPreview');
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            setTimeout(() => { errorMessage.style.display = 'none'; }, 5000);
+        }
+
+        async function uploadToImgBB(file) {
+            try {
+                const formData = new FormData();
+                formData.append('image', file);
+                const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+                    method: 'POST',
+                    body: formData
+                });
+                if (!response.ok) {
+                    throw new Error(`Upload failed with status: ${response.status}`);
+                }
+                const data = await response.json();
+                if (!data.success || !data.data || !data.data.url) {
+                    throw new Error('Invalid response from ImgBB');
+                }
+                return data.data.url;
+            } catch (error) {
+                console.error('ImgBB upload error:', error);
+                throw new Error(`Image upload failed: ${error.message}`);
+            }
+        }
+
+        function shouldForceProfileCompletion() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('completeProfile') === '1';
+        }
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) return; // Stay on login until sign-in
+            currentUser = user;
+            try {
+                const userDoc = await getDoc(doc(db, 'users', user.uid));
+                const complete = userDoc.exists() && userDoc.data().profileComplete;
+                
+                // Use timeout to avoid instant redirect loop
+                setTimeout(() => {
+                    if (complete) {
+                        localStorage.setItem('shutterSoulLoggedIn', 'true');
+                        window.location.href = 'index.html';
+                    } else {
+                        welcomeSection.style.display = 'none';
+                        profileForm.style.display = 'block';
+                    }
+                }, 500);
+            } catch (error) {
+                console.error('Error checking profile:', error);
+                showError('Error loading profile');
+            }
+        });
+
+        googleLoginBtn.addEventListener('click', async () => {
+            googleLoginBtn.disabled = true;
+            googleLoginBtn.innerHTML = '<span class="loading"></span> Signing in...';
+            try {
+                const result = await signInWithPopup(auth, provider);
+                currentUser = result.user;
+                const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+                const complete = userDoc.exists() && userDoc.data().profileComplete;
+                if (complete) {
+                    window.location.href = 'index.html';
+                } else {
+                    welcomeSection.style.display = 'none';
+                    profileForm.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Sign in error:', error);
+                showError('Failed to sign in: ' + error.message);
+                googleLoginBtn.disabled = false;
+                googleLoginBtn.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>Continue with Google';
+            }
+        });
+
+        profilePhotoInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                if (file.size > 5 * 1024 * 1024) {
+                    showError('File must be less than 5MB');
+                    return;
+                }
+                profilePhotoFile = file;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    photoPreview.innerHTML = `<img src="${e.target.result}" alt="Profile">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        submitProfileBtn.addEventListener('click', async () => {
+            const userName = document.getElementById('userName').value.trim();
+            const userGender = document.getElementById('userGender').value;
+            const userAge = document.getElementById('userAge').value;
+
+            if (!userName) { showError('Please enter your name'); return; }
+            if (!userGender) { showError('Please select your gender'); return; }
+            if (!userAge || userAge < 13 || userAge > 120) { showError('Please enter valid age (13-120)'); return; }
+            if (!profilePhotoFile) { showError('Please upload a photo'); return; }
+            if (!currentUser) { showError('Please log in first'); return; }
+
+            submitProfileBtn.disabled = true;
+            submitProfileBtn.innerHTML = '<span class="loading"></span> Creating Profile...';
+            errorMessage.style.display = 'none';
+
+            try {
+                const photoURL = await uploadToImgBB(profilePhotoFile);
+                await setDoc(doc(db, 'users', currentUser.uid), {
+                    uid: currentUser.uid,
+                    email: currentUser.email,
+                    displayName: userName,
+                    gender: userGender,
+                    age: parseInt(userAge),
+                    photoURL,
+                    joinDate: Date.now(),
+                    totalScore: 0,
+                    achievements: {},
+                    profileComplete: true
+                });
+                window.location.href = 'index.html';
+            } catch (error) {
+                console.error('Profile creation error:', error);
+                showError('Failed to create profile: ' + error.message);
+                submitProfileBtn.disabled = false;
+                submitProfileBtn.innerHTML = 'Create Profile';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,2437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="google-site-verification" content="HbnYYKILxQrSoIICkVS1IwurgayqLW8w3G5G7B6DsGY" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Shutter Soul - Photo Competition</title>
+    <link rel="icon" type="image/png" href="/favicon.png?v=2" sizes="512x512">
+    <link rel="apple-touch-icon" href="/favicon.png?v=2">
+    <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #000000; color: #ffffff; min-height: 100vh; padding-bottom: 80px; }
+
+        /* Header */
+        .header { display: flex; align-items: flex-start; justify-content: space-between; padding: 20px; background: #000000; border-bottom: 1px solid #333; position: relative; }
+        .logo-section { display: flex; flex-direction: column; align-items: flex-start; gap: 5px; }
+        .logo { font-family: 'Alex Brush', cursive; font-size: 36px; color: #0cc0df; }
+        .credit-section { display: flex; gap: 5px; }
+        .credit{ padding-left: 85px; font-size: 14px; color: #ffffff; font-family: 'The Seasons'; }
+        .credit1{ font-size: 24px; color: #0cc0df; font-family: 'Alex Brush', cursive; }
+        .info-btn { width: 45px; height: 45px; fill: #ffffff; background: #000000; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .info-btn img { width: 60px; height: 60px; }
+
+        /* Feed Container */
+        .feed-container { width: 100%; max-width: 800px; margin: 0 auto; padding: 20px; box-sizing: border-box; overflow: hidden; }
+
+        /* Skeleton Loading */
+        .skeleton-card { background: #1a1a1a; margin-bottom: 20px; padding: 15px; border-radius: 0; }
+        .skeleton-header { display: flex; gap: 15px; align-items: center; margin-bottom: 15px; }
+        .skeleton-avatar { width: 50px; height: 50px; border-radius: 50%; background: #333; animation: pulse 1.5s infinite; }
+        .skeleton-text-group { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+        .skeleton-text { width: 120px; height: 16px; background: #333; border-radius: 4px; animation: pulse 1.5s infinite; }
+        .skeleton-text.short { width: 80px; }
+        .skeleton-image { width: 100%; height: 400px; background: #333; animation: pulse 1.5s infinite; margin-bottom: 15px; }
+        .skeleton-footer { display: flex; justify-content: space-between; align-items: center; }
+        .skeleton-actions { display: flex; gap: 15px; }
+        .skeleton-action { width: 60px; height: 24px; background: #333; border-radius: 4px; animation: pulse 1.5s infinite; }
+        .skeleton-rating { width: 50px; height: 24px; background: #333; border-radius: 4px; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+
+        /* Post Card */
+        .post-card { background: #1a1a1a; border-radius: 0; margin-bottom: 20px; overflow: hidden; width: 100%; box-sizing: border-box; }
+        .post-header { padding: 15px; display: flex; align-items: center; gap: 15px; }
+        .user-avatar { width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #d68fb5 0%, #c67ba3 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 20px; overflow: hidden; flex-shrink: 0; }
+        .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .user-info { flex: 1; min-width: 0; overflow: hidden; }
+        .user-info h3 { font-size: 16px; margin-bottom: 3px; color: #ffffff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .user-info p { font-size: 13px; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .post-image { width: 100%; max-height: 600px; object-fit: contain; background: #1a1a1a; display: block; min-height: 200px; transition: min-height 0.3s; }
+        .post-image.loaded { min-height: 0; background: #000000; }
+        .post-image-container { position: relative; background: linear-gradient(110deg, #1a1a1a 30%, #252525 50%, #1a1a1a 70%); background-size: 200% 100%; animation: imgSkeleton 1.4s infinite; }
+        .post-image-container.img-ready { background: #000000; animation: none; }
+        @keyframes imgSkeleton { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        .post-footer { padding: 15px; display: flex; justify-content: space-between; align-items: center; width: 100%; box-sizing: border-box; gap: 10px; }
+        .post-actions { display: flex; align-items: center; gap: 20px; width: 100%; box-sizing: border-box; }
+        .like-btn { background: none; border: none; cursor: pointer; font-size: 28px; transition: transform 0.1s; display: flex; align-items: center; gap: 8px; color: #ffffff; user-select: none; flex-shrink: 0; }
+        .like-btn:hover { transform: scale(1.1); }
+        .like-btn:active { transform: scale(0.95); }
+        .like-count { font-size: 16px; color: #ffffff; }
+        .rating-badge { display: inline-block; color: #ffffff; font-size: 16px; flex-shrink: 0; white-space: nowrap; }
+        .rating-badge span { color: #ff0000; }
+        .empty-state { text-align: center; color: #888; padding: 60px 20px; }
+        .empty-state h2 { font-size: 48px; margin-bottom: 15px; }
+
+        /* Bottom Navigation */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: #000000; border-top: 1px solid #333; display: flex; justify-content: space-around; align-items: center; padding: 15px 0; z-index: 1000; }
+        .nav-item { background: none; border: none; color: #888; cursor: pointer; padding: 10px 30px; transition: color 0.3s; display: flex; align-items: center; justify-content: center; flex: 1; max-width: 80px; }
+        .nav-item img { width: 28px !important; height: 28px !important; filter: brightness(1.2); }
+        .nav-profile-pic { width: 28px !important; height: 28px !important; border-radius: 50%; object-fit: cover; border: 2px solid #333; transition: border-color 0.3s; filter: none; }
+        .nav-item svg { width: 28px !important; height: 28px !important; fill: #888; transition: fill 0.3s; }
+        .nav-item:hover svg, .nav-item.active svg { fill: #0cc0df; }
+
+        /* Upload Modal */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 2000; justify-content: center; align-items: center; padding: 20px; }
+        .modal.active { display: flex; }
+        .modal-content { 
+            background: #1a1a1a; 
+            padding: 30px; 
+            border-radius: 20px; 
+            max-width: 500px; 
+            width: 100%; 
+            max-height: 90vh; 
+            overflow-y: auto; 
+            /* ✅ FIX 2: Hide scrollbar for Firefox and IE/Edge */
+            scrollbar-width: none; 
+            -ms-overflow-style: none; 
+        }
+        
+        /* ✅ FIX 2: Hide scrollbar for Chrome, Safari, and Opera */
+        .modal-content::-webkit-scrollbar { 
+            display: none; 
+        }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-header h2 { font-size: 24px; color: #0cc0df; }
+        .close-btn { background: none; border: none; font-size: 32px; cursor: pointer; color: #888; }
+        .upload-area { border: 3px dashed #555; border-radius: 15px; padding: 40px; text-align: center; cursor: pointer; transition: all 0.3s; margin-bottom: 20px; }
+        .upload-area:hover { border-color: #0cc0df; background: #222; }
+        .preview-container { display: none; margin: 20px 0; }
+        .preview-container.active { display: block; }
+        .preview-image { width: 100%; max-height: 400px; object-fit: contain; border-radius: 10px; margin-bottom: 15px; background: #000; }
+        .btn { padding: 15px 30px; border: none; border-radius: 10px; cursor: pointer; font-size: 16px; font-weight: 600; transition: all 0.3s; }
+        .btn-upload { background: #0cc0df; color: #000000; width: 100%; margin-top: 10px; }
+        .btn-upload:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-cancel { background: #333; color: #ffffff; width: 100%; margin-top: 10px; }
+        .progress-bar { display: none; width: 100%; height: 8px; background: #333; border-radius: 10px; overflow: hidden; margin: 15px 0; }
+        .progress-bar.active { display: block; }
+        .progress-fill { height: 100%; background: #0cc0df; transition: width 0.3s; }
+        .error-message, .success-message { padding: 12px; border-radius: 8px; margin: 10px 0; display: none; }
+        .error-message { background: rgba(255, 0, 0, 0.2); border: 1px solid #ff0000; color: #ff6666; }
+        .success-message { background: rgba(0, 255, 0, 0.2); border: 1px solid #00ff00; color: #66ff66; }
+        .error-message.active, .success-message.active { display: block; }
+
+        @media (max-width: 768px) {
+            .logo { font-size: 28px; }
+            .post-card { margin: 0 0 20px; width: 100%; }
+            .credit{ padding-left: 85px; font-size: 12px; }
+            .credit1{ font-size: 18px; }
+            .nav-item img { width: 50px; height: 50px; }
+        }
+
+        /* Progress Steps */
+        .upload-progress { background: #111; border-radius: 10px; padding: 20px; margin-top: 20px; display: none; }
+        .progress-step { display: flex; align-items: center; margin-bottom: 15px; color: #666; }
+        .progress-step.active { color: #00d4ff; }
+        .progress-step.complete { color: #4caf50; }
+        .progress-step.error { color: #ff3366; }
+        .progress-icon { width: 24px; height: 24px; margin-right: 12px; border-radius: 50%; border: 2px solid currentColor; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+        .progress-icon.loading::after { content: ''; width: 12px; height: 12px; border: 2px solid currentColor; border-top-color: transparent; border-radius: 50%; animation: spin 0.6s linear infinite; }
+        .api-limit-warning { background: rgba(255, 235, 59, 0.2); border: 1px solid #ffeb3b; color: #fff59d; padding: 10px; border-radius: 8px; margin-top: 10px; font-size: 12px; text-align: center; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        /* 🌟 NEW: Live Score Box & Floating Animation Styles */
+        .user-live-score {
+            margin-left: auto;
+            background: rgba(12, 192, 223, 0.1);
+            border: 1px solid rgba(12, 192, 223, 0.3);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            color: #0cc0df;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: transform 0.2s ease, background 0.2s ease;
+            box-shadow: 0 0 10px rgba(12, 192, 223, 0.1);
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+
+        .user-live-score.pop {
+            transform: scale(1.2);
+            background: rgba(12, 192, 223, 0.4);
+            box-shadow: 0 0 15px rgba(12, 192, 223, 0.6);
+        }
+
+        .floating-point {
+            position: fixed;
+            font-weight: 900;
+            font-size: 24px;
+            pointer-events: none;
+            z-index: 9999;
+            transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.8s ease-in;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.8);
+        }
+        /* 🌟 NEW: Dynamic Rank-Based Colors for the Top 3 */
+        .rank-gold .user-live-score {
+            border-color: rgba(255, 215, 0, 0.6);
+            color: #ffd700;
+            background: rgba(255, 215, 0, 0.15);
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+        }
+
+        .rank-silver .user-live-score {
+            border-color: rgba(192, 192, 192, 0.6);
+            color: #c0c0c0;
+            background: rgba(192, 192, 192, 0.15);
+            box-shadow: 0 0 8px rgba(192, 192, 192, 0.2);
+        }
+
+        .rank-bronze .user-live-score {
+            border-color: rgba(205, 127, 50, 0.6);
+            color: #cd7f32;
+            background: rgba(205, 127, 50, 0.15);
+            box-shadow: 0 0 8px rgba(205, 127, 50, 0.2);
+        }
+
+        /* Responsive UI: Ensure the points box is visible and well-placed on mobile */
+        @media (max-width: 480px) {
+            .user-live-score {
+                font-size: 13px;
+                padding: 4px 10px;
+                order: 3;
+                margin-top: 4px;
+                margin-left: 0;
+            }
+        }
+
+        /* 🚨 FIX: Added touch-action and user-select to prevent mobile zooming */
+        .post-image-container {
+            position: relative;
+            overflow: hidden;
+            touch-action: manipulation; 
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        /* Pulse heart for double-tap */
+        .pulse-heart {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            font-size: 80px;
+            opacity: 0;
+            pointer-events: none;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            z-index: 10;
+        }
+        .pulse-heart.active {
+            animation: heartPulse 1s ease forwards;
+        }
+        @keyframes heartPulse {
+            0%   { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+            50%  { transform: translate(-50%, -50%) scale(1.3); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+        }
+        /* 🔒 Prevent text selection and copying across the entire page */
+body {
+    -webkit-user-select: none; /* Safari */
+    -ms-user-select: none;     /* IE 10 and 11 */
+    user-select: none;         /* Standard syntax */
+}
+
+/* ══════════════════════════════════════════════════
+   🔥 STREAK BADGE
+══════════════════════════════════════════════════ */
+.streak-badge-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, rgba(255,80,0,0.15), rgba(255,140,0,0.1));
+    border: 1px solid rgba(255,100,0,0.35);
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #ff6a00;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+.streak-badge-header:hover {
+    background: rgba(255,100,0,0.25);
+    transform: scale(1.05);
+}
+.streak-badge-header .streak-fire { font-size: 16px; }
+.streak-count-header { color: #ff9500; }
+
+/* ══════════════════════════════════════════════════
+   ⚡ FLASH CHALLENGE BANNER
+══════════════════════════════════════════════════ */
+.flash-challenge-banner {
+    display: none;
+    margin: 0 auto;
+    max-width: 800px;
+    padding: 0 20px;
+    position: sticky;
+    top: 0;
+    z-index: 500;
+    animation: slideDownFade 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+@keyframes slideDownFade {
+    from { transform: translateY(-20px); opacity: 0; }
+    to   { transform: translateY(0);     opacity: 1; }
+}
+.flash-inner {
+    background: linear-gradient(135deg, #1a0a2e 0%, #0f0722 50%, #1a0028 100%);
+    border: 1px solid rgba(150, 50, 255, 0.5);
+    border-radius: 16px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    box-shadow: 0 0 20px rgba(120,50,255,0.25), inset 0 0 30px rgba(120,50,255,0.05);
+    margin: 10px 0;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.flash-inner:hover { transform: translateY(-2px); box-shadow: 0 4px 25px rgba(120,50,255,0.4); }
+.flash-icon { font-size: 28px; animation: flashPulse 1.5s infinite ease-in-out; flex-shrink: 0; }
+@keyframes flashPulse { 0%,100%{ transform: scale(1); } 50%{ transform: scale(1.2); } }
+.flash-text { flex: 1; }
+.flash-title { font-size: 12px; color: #b380ff; letter-spacing: 2px; text-transform: uppercase; font-weight: 700; }
+.flash-desc  { font-size: 16px; color: #fff; font-weight: 700; margin: 2px 0; }
+.flash-bonus { font-size: 12px; color: #ffd700; }
+.flash-timer { font-size: 22px; font-weight: 800; color: #ff6bff; font-family: monospace; letter-spacing: 2px; flex-shrink: 0; }
+.flash-dismiss { background: none; border: none; color: #666; font-size: 18px; cursor: pointer; padding: 4px; flex-shrink: 0; }
+
+/* ══════════════════════════════════════════════════
+   🌅 GOLDEN HOUR BANNER & POST GLOW
+══════════════════════════════════════════════════ */
+.golden-hour-banner {
+    display: none;
+    text-align: center;
+    padding: 10px 20px;
+    background: linear-gradient(90deg, rgba(255,215,0,0.12) 0%, rgba(255,165,0,0.08) 100%);
+    border-top: 1px solid rgba(255,215,0,0.2);
+    border-bottom: 1px solid rgba(255,215,0,0.2);
+    color: #ffd700;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    animation: goldenGlow 3s ease-in-out infinite;
+}
+@keyframes goldenGlow { 0%,100%{ opacity:0.8; } 50%{ opacity:1; } }
+.golden-hour-post .post-image-container {
+    border: 2px solid rgba(255,215,0,0.6);
+    box-shadow: 0 0 20px rgba(255,200,0,0.2), inset 0 0 20px rgba(255,200,0,0.05);
+}
+.golden-hour-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: linear-gradient(135deg, #ffd700, #ff8c00);
+    color: #000;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 20px;
+    z-index: 5;
+    letter-spacing: 1px;
+}
+
+
+/* ══════════════════════════════════════════════════
+   🏆 LIFETIME TITLE BADGE (in user post header)
+══════════════════════════════════════════════════ */
+.lifetime-title-tag {
+    font-size: 11px;
+    color: #888;
+    display: block;
+    margin-top: 1px;
+}
+
+/* ══════════════════════════════════════════════════
+   🎉 STREAK MILESTONE CELEBRATION
+══════════════════════════════════════════════════ */
+.streak-celebration {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(135deg, #1a0a00, #2a1200);
+    border: 2px solid rgba(255,100,0,0.6);
+    border-radius: 20px;
+    padding: 30px 40px;
+    text-align: center;
+    z-index: 9999;
+    animation: celebrateIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    display: none;
+}
+.streak-celebration.active { display: block; }
+@keyframes celebrateIn { from { transform: translate(-50%,-60%) scale(0.7); opacity:0; } to { transform: translate(-50%,-50%) scale(1); opacity:1; } }
+        /* ✅ FIX: Mobile Responsiveness Overrides */
+        /* ✅ FIX: Flawless Mobile Responsiveness */
+        @media (max-width: 480px) {
+            .post-header { 
+                padding: 12px 15px; 
+                flex-wrap: nowrap; /* Prevents points box from wrapping out of frame */
+            }
+            .user-live-score {
+                font-size: 11px !important;
+                padding: 4px 8px !important;
+                margin-left: auto !important; /* Anchors to the far right */
+                order: unset !important;
+                margin-top: 0 !important;
+            }
+            .post-actions > div { 
+                gap: 15px !important; 
+            }
+            .like-btn, .post-actions button { 
+                font-size: 20px !important; 
+            }
+            .like-btn svg, .post-actions button div {
+                width: 22px !important; 
+                height: 22px !important;
+            }
+            .like-count, .comment-count { 
+                font-size: 14px !important; 
+            }
+            .rating-badge { 
+                font-size: 14px !important; 
+            }
+            /* Fix Bottom Nav crowding */
+            .nav-item { 
+                padding: 8px 0 !important; 
+                flex: 1; 
+                display: flex; 
+                justify-content: center;
+            }
+            .nav-item img, .nav-item svg { 
+                width: 24px !important; 
+                height: 24px !important; 
+            }
+            .nav-profile-pic { 
+                width: 24px !important; 
+                height: 24px !important; 
+            }
+            .upload-btn {
+                width: 45px;
+                height: 45px;
+                margin-top: -15px;
+            }
+            .upload-btn svg {
+                width: 20px !important;
+                height: 20px !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo-section">
+            <div class="logo">Shutter Soul</div>
+            <div class="credit-section">
+                <div class="credit">Developed by</div>
+                <div class="credit1">Ishan</div>
+            </div>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px;">
+            <div class="streak-badge-header" id="headerStreakBadge" style="display:none;" onclick="showStreakCelebration()">
+                <span class="streak-fire">🔥</span>
+                <span class="streak-count-header" id="headerStreakCount">0</span>
+                <span style="color:#888; font-size:11px;">day streak</span>
+            </div>
+            <button class="info-btn" onclick="window.location.href='info.html'"><img src="information.png" alt="Info"></button>
+        </div>
+    </div>
+
+    <!-- ⚡ Flash Challenge Banner -->
+    <div class="flash-challenge-banner" id="flashChallengeBanner">
+        <div class="flash-inner" onclick="highlightFlashChallenge()">
+            <div class="flash-icon">⚡</div>
+            <div class="flash-text">
+                <div class="flash-title">Flash Challenge — Active Now!</div>
+                <div class="flash-desc" id="flashChallengeDesc">Loading...</div>
+                <div class="flash-bonus" id="flashChallengeBonus"></div>
+            </div>
+            <div class="flash-timer" id="flashChallengeTimer">--:--</div>
+            <button class="flash-dismiss" onclick="event.stopPropagation(); dismissFlashChallenge()">✕</button>
+        </div>
+    </div>
+
+    <!-- 🌅 Golden Hour Banner -->
+    <div class="golden-hour-banner" id="goldenHourBanner">
+        🌅 GOLDEN HOUR — Photos uploaded now earn a 1.2× like multiplier!
+    </div>
+
+
+    <!-- 🔥 STREAK CELEBRATION OVERLAY -->
+    <div class="streak-celebration" id="streakCelebration">
+        <div style="font-size:56px; margin-bottom:10px;">🔥</div>
+        <div style="font-size:28px; font-weight:800; color:#ff6a00;" id="celebStreakNum">5 Day Streak!</div>
+        <div style="color:#aaa; margin: 10px 0; font-size:14px;" id="celebStreakMsg">Keep uploading daily!</div>
+        <button onclick="document.getElementById('streakCelebration').classList.remove('active')" 
+                style="margin-top:15px; padding:10px 30px; background:#ff6a00; border:none; border-radius:20px; color:#fff; font-weight:700; cursor:pointer; font-size:14px;">
+            Let's Go! 💪
+        </button>
+    </div>
+
+    <div id="feedContainer"></div>
+
+    <style>
+        .bottom-sheet-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 10000; display: none; align-items: flex-end; justify-content: center; }
+        .bottom-sheet-content { background: #111; width: 100%; max-width: 600px; height: 75vh; border-radius: 20px 20px 0 0; display: flex; flex-direction: column; animation: slideUp 0.3s ease-out; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        @keyframes fadeToast { 0% { bottom: -50px; opacity: 0; } 10% { bottom: 80px; opacity: 1; } 90% { bottom: 80px; opacity: 1; } 100% { bottom: -50px; opacity: 0; } }
+    </style>
+
+    <div id="commentsModal" class="bottom-sheet-modal">
+        <div class="bottom-sheet-content">
+            <div style="padding: 15px 20px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin:0;">Comments</h3>
+                <button onclick="closeCommentsModal()" style="background:none; border:none; color:white; font-size:20px; cursor:pointer;">✕</button>
+            </div>
+            <div id="commentsList" style="flex: 1; overflow-y: auto; padding: 15px;"></div>
+            <div style="padding: 15px; border-top: 1px solid #333; background: #1a1a1a;">
+                <div id="replyIndicator" style="display:none; font-size:12px; color:#0cc0df; margin-bottom:8px;"></div>
+                <div style="display:flex; gap:10px;">
+                    <input type="text" id="commentInput" placeholder="Add a comment..." style="flex:1; padding:10px; border-radius:20px; border:1px solid #444; background:#000; color:white; font-size: 16px;">
+                    <button onclick="submitComment()" style="background:#0cc0df; color:white; border:none; padding:10px 20px; border-radius:20px; font-weight:bold; cursor:pointer;">Post</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="shareModal" class="bottom-sheet-modal">
+        <div class="bottom-sheet-content">
+            <div style="padding: 15px 20px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin:0;">Share to...</h3>
+                <button onclick="closeShareModal()" style="background:none; border:none; color:white; font-size:20px; cursor:pointer;">✕</button>
+            </div>
+            <div id="shareUsersList" style="flex: 1; overflow-y: auto; padding: 0 15px;"></div>
+            <div style="padding: 15px; border-top: 1px solid #333;">
+                <button id="sendShareBtn" onclick="sendSharedPost()" style="width: 100%; padding: 15px; background: #0cc0df; border: none; border-radius: 10px; color: white; font-weight: bold; display: none; cursor:pointer;">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="bottom-nav">
+        <button class="nav-item" onclick="window.location.href='ranking.html'">
+            <img src="statistics.svg" alt="Statistics">
+        </button>
+        <button class="nav-item" id="uploadBtn">
+            <img src="upload.svg" alt="Upload">
+        </button>
+        <button class="nav-item" onclick="window.location.href='message.html'">
+            <img src="msg.svg" alt="Messages">
+        </button>
+        <button class="nav-item active" id="navProfileBtn" onclick="window.location.href='profile.html'">
+            <img id="navProfilePic" src="profile.svg" alt="Profile" class="nav-profile-pic">
+        </button>
+    </div>
+
+    <div class="modal" id="uploadModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Upload Your Photo</h2>
+                <button class="close-btn" id="closeModalBtn">&times;</button>
+            </div>
+
+            <div class="error-message" id="errorMessage"></div>
+            <div class="success-message" id="successMessage"></div>
+            
+            <div class="api-limit-warning" id="apiLimitWarning" style="display: none;">
+                API Calls Remaining Today: <strong id="remainingCalls">100</strong>/100
+            </div>
+
+            <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp" style="display: none;">
+            
+            <div class="upload-area" id="uploadArea">
+                <div style="font-size: 48px; margin-bottom: 15px;">📸</div>
+                <p style="font-size: 18px; font-weight: 600; margin-bottom: 10px;">Click to select a photo</p>
+                <p style="color: #888; font-size: 14px;">or drag and drop here</p>
+                <p style="color: #666; font-size: 12px; margin-top: 10px;">Accepted: JPG, PNG, WebP (Max 10MB)</p>
+            </div>
+
+            <!-- ⚡ Flash Challenge in Upload Modal -->
+            <div id="uploadFlashInfo" style="display:none; background:linear-gradient(135deg,rgba(120,50,255,0.15),rgba(80,20,200,0.1)); border:1px solid rgba(150,50,255,0.4); border-radius:12px; padding:12px 16px; margin-top:12px; display:none;">
+                <div style="font-size:11px; color:#b380ff; letter-spacing:2px; text-transform:uppercase; font-weight:700;">⚡ Active Flash Challenge</div>
+                <div id="uploadFlashDesc" style="font-size:15px; color:#fff; font-weight:700; margin:4px 0;"></div>
+                <div id="uploadFlashBonus" style="font-size:12px; color:#ffd700;"></div>
+            </div>
+
+            <!-- 🌅 Golden Hour notice in upload modal -->
+            <div id="uploadGoldenNotice" style="display:none; background:linear-gradient(135deg,rgba(255,215,0,0.15),rgba(255,165,0,0.08)); border:1px solid rgba(255,215,0,0.35); border-radius:12px; padding:12px 16px; margin-top:12px;">
+                <div style="font-size:12px; color:#ffd700; font-weight:700; margin-bottom:3px;">🌅 You're uploading during Golden Hour!</div>
+                <div style="font-size:11px; color:#aaa;">Your photo will receive a 1.2× community like multiplier and a special gold border in the feed.</div>
+            </div>
+
+            <!-- ✅ NEW: Originality advisory notice -->
+            <div style="
+                display: flex;
+                align-items: flex-start;
+                gap: 12px;
+                background: linear-gradient(135deg, rgba(12,192,223,0.08), rgba(12,192,223,0.04));
+                border: 1px solid rgba(12,192,223,0.25);
+                border-radius: 14px;
+                padding: 14px 16px;
+                margin-top: 14px;
+                animation: floatNotice 3s ease-in-out infinite;
+            ">
+                <span style="font-size: 22px; flex-shrink: 0; margin-top: 1px;">📷</span>
+                <p style="
+                    margin: 0;
+                    font-size: 12.5px;
+                    line-height: 1.6;
+                    color: #b0d8e0;
+                ">
+                    <strong style="color: #0cc0df; font-size: 13px;">Originality is required.</strong><br>
+                    We strongly recommend uploading photos captured by you personally with your own device.
+                    Downloading images from the internet and submitting them as your own is
+                    <strong style="color: #ff6b6b;">strictly prohibited</strong> and will be automatically detected.
+                </p>
+            </div>
+            <style>
+                @keyframes floatNotice {
+                    0%, 100% { transform: translateY(0px); box-shadow: 0 4px 15px rgba(12,192,223,0.08); }
+                    50%       { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(12,192,223,0.15); }
+                }
+            </style>
+
+            <!-- 🚨 NEW: Countdown shown when user already uploaded today -->
+            <div id="uploadCountdown" style="display:none; text-align:center; padding: 2rem 1rem;">
+                <div style="font-size: 56px; margin-bottom: 12px;">✅</div>
+                <p style="font-size: 18px; font-weight: 700; color: #0cc0df; margin-bottom: 8px;">Photo uploaded today!</p>
+                <p style="color: #aaa; font-size: 14px; margin-bottom: 20px;">Come back tomorrow to earn more points</p>
+                <div style="background: rgba(12,192,223,0.1); border: 1px solid rgba(12,192,223,0.3); border-radius: 16px; padding: 1rem 1.5rem; display: inline-block;">
+                    <p style="color: #888; font-size: 12px; margin-bottom: 4px;">Next upload available in</p>
+                    <p id="countdownTimer" style="font-size: 32px; font-weight: 800; color: #fff; font-family: monospace; letter-spacing: 2px;">00:00:00</p>
+                </div>
+            </div>
+
+            <div class="preview-container" id="previewContainer">
+                <img id="previewImage" class="preview-image" alt="Preview">
+                
+                <div class="progress-bar" id="progressBar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                
+                <button class="btn btn-upload" id="uploadSubmitBtn">Upload Photo</button>
+            </div>
+
+            <div class="upload-progress" id="uploadProgress">
+                <div class="progress-step" id="step1">
+                    <div class="progress-icon">1</div>
+                    <span>Initializing upload...</span>
+                </div>
+                <div class="progress-step" id="step2">
+                    <div class="progress-icon">2</div>
+                    <span>Checking for duplicate images...</span>
+                </div>
+                <div class="progress-step" id="step3">
+                    <div class="progress-icon">3</div>
+                    <span>Checking metadata &amp; uploading...</span>
+                </div>
+                <div class="progress-step" id="step4">
+                    <div class="progress-icon">4</div>
+                    <span>Checking if image exists online (Vision AI)...</span>
+                </div>
+                <div class="progress-step" id="step5">
+                    <div class="progress-icon">5</div>
+                    <span>Calculating rating...</span>
+                </div>
+                <div class="progress-step" id="step6">
+                    <div class="progress-icon">6</div>
+                    <span>Saving to database...</span>
+                </div>
+            </div>
+
+            <div id="uploadDescriptionStep" style="display: none; text-align: left; margin-top: 20px;">
+                <h3 style="margin-bottom: 10px; font-size: 18px; color: #0cc0df;">Add a Description</h3>
+                <textarea id="postDescriptionInput" placeholder="Write a caption... (optional)" style="width: 100%; height: 80px; background: #222; border: 1px solid #444; border-radius: 8px; color: white; padding: 10px; resize: none; font-family: inherit; margin-bottom: 15px;"></textarea>
+                <div style="display: flex; gap: 10px;">
+                    <button id="skipDescBtn" style="flex: 1; padding: 12px; background: #444; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">Skip</button>
+                    <button id="saveDescBtn" style="flex: 2; padding: 12px; background: #0cc0df; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">Share Post</button>
+                </div>
+            </div>
+
+            <button class="btn btn-cancel" id="cancelBtn">Cancel</button>
+        </div>
+    </div>
+
+
+    <script type="module">
+    import { getDatabase, ref, onDisconnect, set, serverTimestamp as rtdbServerTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+    import { getAuth, onAuthStateChanged, setPersistence, browserLocalPersistence } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+    import { getFirestore, collection, getDocs, doc, getDoc, setDoc, updateDoc, arrayUnion, arrayRemove, increment, query, where, onSnapshot, addDoc, orderBy, writeBatch, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyD3rQ3l-AlnJhCOCcA7_h2rQHfdxDz1Of0",
+        authDomain: "shutter-soul.firebaseapp.com",
+        projectId: "shutter-soul",
+        storageBucket: "shutter-soul.appspot.com",
+        messagingSenderId: "602126305011",
+        appId: "1:602126305011:web:c059836dae27a208e95986",
+        measurementId: "G-MSSSHJKN28",
+        // ✅ FIX: Added the mandatory Asia database URL so presence works
+        databaseURL: "https://shutter-soul-default-rtdb.asia-southeast1.firebasedatabase.app" 
+    };
+
+    // ✅ FIX: Ordered correctly. App MUST be initialized before db and rtdb
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const rtdb = getDatabase(app);
+    const IMGBB_API_KEY = 'dc7cfbde88ec48894781740d1d8ff64d';
+    // ✅ UPDATED: Google Cloud Vision API key (replaces broken Custom Search key)
+    // Get yours free at: console.cloud.google.com → Enable "Cloud Vision API" → Create API Key
+    const GOOGLE_VISION_API_KEY = 'AIzaSyD3JmyxvLsybKLWY0vqyYBbrE1P-hZVD4I';
+    
+    let currentUser = null;
+
+    // Vision API free tier = 1,000/month ≈ 33/day
+    const rateLimiter = new APIRateLimiter(33);
+
+    setPersistence(auth, browserLocalPersistence).catch((error) => console.error('Persistence error:', error));
+
+    onAuthStateChanged(auth, async (user) => {
+        if (user === null) {
+            setTimeout(() => {
+                if (!auth.currentUser && !localStorage.getItem('shutterSoulLoggedIn')) {
+                    window.location.href = 'login.html';
+                }
+            }, 800);
+            return;
+        }
+
+        currentUser = user;
+        localStorage.setItem('shutterSoulLoggedIn', 'true');
+        
+        try {
+            const userDoc = await getDoc(doc(db, 'users', user.uid));
+            if (!userDoc.exists() || !userDoc.data().profileComplete) {
+                window.location.href = 'login.html?completeProfile=1';
+                return;
+            }
+            // ✅ Set nav profile picture to user's actual photo + cache for other pages
+            const userData = userDoc.data();
+            const navPic = document.getElementById('navProfilePic');
+            const picUrl = userData.photoURL || user.photoURL;
+            if (navPic && picUrl) {
+                navPic.src = picUrl;
+                navPic.style.borderColor = '#0cc0df';
+            }
+            if (picUrl) localStorage.setItem('shutterSoulProfilePic', picUrl);
+            loadFeed();
+            updateAPILimitDisplay();
+            checkDailyUploadStatus();
+            loadUserStreak();         // 🔥 Streak badge in header
+            loadFlashChallenge();     // ⚡ Flash challenge banner
+            initGoldenHour();         // 🌅 Golden hour banner + upload notice
+
+        } catch (error) {
+            console.error('Error checking profile:', error);
+            loadFeed();
+        }
+    });
+
+    function showSkeletonLoaders() {
+        const feedContainer = document.getElementById('feedContainer');
+        const skeletonHTML = `
+            <div class="skeleton-card">
+                <div class="skeleton-header">
+                    <div class="skeleton-avatar"></div>
+                    <div class="skeleton-text-group">
+                        <div class="skeleton-text"></div>
+                        <div class="skeleton-text short"></div>
+                    </div>
+                </div>
+                <div class="skeleton-image"></div>
+                <div class="skeleton-footer">
+                    <div class="skeleton-actions">
+                        <div class="skeleton-action"></div>
+                    </div>
+                    <div class="skeleton-rating"></div>
+                </div>
+            </div>
+        `.repeat(3); // Show 3 skeleton cards
+        
+        feedContainer.innerHTML = skeletonHTML;
+    }
+
+    // ─── Feed Pagination State ────────────────────────────────────────────────
+    const PAGE_SIZE = 10;          // photos to render per batch
+    // ✅ FIX (BUG 2 — Timezone): Use local date so IST users aren't locked out on day boundaries.
+    // toLocaleDateString('en-CA') returns YYYY-MM-DD in local time — same format, no UTC shift.
+    const currentMonthYear = new Date().toLocaleDateString('en-CA').slice(0, 7);
+
+    let usersCache     = new Map(); // userId → userData (fetched once)
+    let monthsQueue    = [];        // all months newest→oldest
+    let currentMonthIdx = 0;       // next month index to fetch from Firestore
+    let photoBuffer    = [];        // fetched but not-yet-rendered photos
+    let renderedCount  = 0;         // how many cards are in the DOM
+    let isLoadingMore  = false;     // guard to prevent parallel fetches
+    let allMonthsLoaded = false;    // true when we've exhausted every month
+    let feedObserver   = null;      // IntersectionObserver instance
+
+    /** Generate YYYY-MM strings newest-first */
+    function buildMonthsQueue(startMonth = '2025-01') {
+        const months = [];
+        const start = new Date(startMonth + '-01');
+        const now   = new Date();
+        const cur   = new Date(start);
+        while (cur <= now) {
+            // ✅ FIX (BUG 2 — Timezone): toLocaleDateString gives local YYYY-MM, not UTC
+            months.push(cur.toLocaleDateString('en-CA').slice(0, 7));
+            cur.setMonth(cur.getMonth() + 1);
+        }
+        return months.reverse(); // newest first
+    }
+
+    /** Fetch one month's worth of photos for every cached user */
+    async function fetchNextMonth() {
+        if (currentMonthIdx >= monthsQueue.length) {
+            allMonthsLoaded = true;
+            return;
+        }
+        const monthYear = monthsQueue[currentMonthIdx++];
+        const batch = [];
+
+        // 🚨 FIX 2: Fetch all user uploads in PARALLEL to drop load time to ~1 second
+        const promises = Array.from(usersCache.entries()).map(async ([userId, userData]) => {
+            try {
+                const snap = await getDocs(collection(db, `dailyUploads/${monthYear}/${userId}`));
+                const userPhotos = [];
+                snap.forEach(d => {
+                    userPhotos.push({
+                        id: d.id, userId, monthYear,
+                        username: userData.displayName || userData.email?.split('@')[0] || 'Anonymous',
+                        photoURL: userData.photoURL,
+                        ...d.data()
+                    });
+                });
+                return userPhotos;
+            } catch (_) { return []; }
+        });
+
+        // Wait for all queries to finish simultaneously
+        const results = await Promise.all(promises);
+        results.forEach(userPhotos => batch.push(...userPhotos));
+
+        batch.sort((a, b) => (b.uploadTimestamp || 0) - (a.uploadTimestamp || 0));
+        photoBuffer.push(...batch);
+
+        if (batch.length === 0 && !allMonthsLoaded) {
+            await fetchNextMonth();
+        }
+    }
+
+    // 🚨 NEW: Helper to save the current feed state to cache
+    function updateFeedCache() {
+        if (!allMonthsLoaded && photoBuffer.length === 0) return;
+        const cacheData = {
+            photoBuffer, allMonthsLoaded, currentMonthIdx, monthsQueue, renderedCount,
+            usersCacheEntries: Array.from(usersCache.entries())
+        };
+        sessionStorage.setItem('shutterSoulFeedCache', JSON.stringify(cacheData));
+    }
+
+    /** Append the next PAGE_SIZE photos from the buffer into the DOM */
+    function renderNextBatch() {
+        const feedContainer = document.getElementById('feedContainer');
+
+        if (renderedCount === 0) feedContainer.innerHTML = ''; // clear skeletons
+
+        const slice = photoBuffer.slice(renderedCount, renderedCount + PAGE_SIZE);
+
+        if (slice.length === 0 && allMonthsLoaded) {
+            removeSentinel();
+            if (renderedCount === 0) {
+                feedContainer.innerHTML = `<div class="empty-state"><h2>📷</h2><h2>No Photos Yet</h2></div>`;
+            } else if (!document.getElementById('endOfFeedMsg')) {
+                feedContainer.insertAdjacentHTML('beforeend', '<div id="endOfFeedMsg" style="text-align:center;padding:30px;color:#555;font-size:14px;">You\'ve seen all photos ✓</div>');
+            }
+            updateFeedCache();
+            return;
+        }
+
+        slice.forEach(photo => feedContainer.appendChild(createPostCard(photo)));
+        renderedCount += slice.length;
+        ensureSentinel(feedContainer);
+        updateFeedCache(); // Save state
+    }
+
+    function ensureSentinel(container) {
+        let s = document.getElementById('feedSentinel');
+        if (!s) {
+            s = document.createElement('div');
+            s.id = 'feedSentinel';
+            s.style.cssText = 'height:1px;visibility:hidden;';
+        }
+        container.appendChild(s); // always keep it at the very bottom
+        if (feedObserver) feedObserver.observe(s);
+    }
+
+    function removeSentinel() {
+        if (feedObserver) feedObserver.disconnect();
+        const s = document.getElementById('feedSentinel');
+        if (s) s.remove();
+    }
+
+    function showFeedLoadingSpinner(show) {
+        let spinner = document.getElementById('feedSpinner');
+        if (show && !spinner) {
+            spinner = document.createElement('div');
+            spinner.id = 'feedSpinner';
+            spinner.style.cssText = 'text-align:center;padding:20px;color:#0cc0df;font-size:14px;';
+            spinner.textContent = 'Loading more…';
+            document.getElementById('feedContainer').appendChild(spinner);
+        } else if (!show && spinner) {
+            spinner.remove();
+        }
+    }
+
+    /** Set up IntersectionObserver on the sentinel div */
+    function setupInfiniteScroll() {
+        if (feedObserver) feedObserver.disconnect();
+
+        feedObserver = new IntersectionObserver(async (entries) => {
+            if (!entries[0].isIntersecting || isLoadingMore) return;
+            isLoadingMore = true;
+
+            if (renderedCount < photoBuffer.length) {
+                // We have buffered photos — just render them, no network call
+                renderNextBatch();
+                isLoadingMore = false;
+            } else if (!allMonthsLoaded) {
+                // Need to fetch next month from Firestore
+                showFeedLoadingSpinner(true);
+                await fetchNextMonth();
+                showFeedLoadingSpinner(false);
+                renderNextBatch();
+                isLoadingMore = false;
+            } else {
+                // Nothing left
+                renderNextBatch(); // will show "all seen" message
+                isLoadingMore = false;
+            }
+        }, { rootMargin: '300px' }); // trigger 300px before sentinel is visible
+
+        const s = document.getElementById('feedSentinel');
+        if (s) feedObserver.observe(s);
+    }
+
+    /** Main entry — called once after auth */
+    async function loadFeed() {
+        const feedContainer = document.getElementById('feedContainer');
+        showSkeletonLoaders();
+
+        photoBuffer = []; renderedCount = 0; isLoadingMore = false;
+        allMonthsLoaded = false; currentMonthIdx = 0; usersCache = new Map();
+        removeSentinel();
+
+        try {
+            // 🚨 FIX: Detect if the user manually refreshed the page. If so, clear cache to start at the TOP!
+            const navEntries = performance.getEntriesByType("navigation");
+            if (navEntries.length > 0 && navEntries[0].type === "reload") {
+                sessionStorage.removeItem('shutterSoulFeedCache');
+                sessionStorage.removeItem('shutterSoulScrollY');
+            }
+
+            // Check for instant Cache & Scroll Restoration
+            const cachedFeed = sessionStorage.getItem('shutterSoulFeedCache');
+            const savedScroll = sessionStorage.getItem('shutterSoulScrollY');
+
+            if (cachedFeed) {
+                const cacheData = JSON.parse(cachedFeed);
+                photoBuffer = cacheData.photoBuffer || [];
+                allMonthsLoaded = cacheData.allMonthsLoaded;
+                currentMonthIdx = cacheData.currentMonthIdx;
+                monthsQueue = cacheData.monthsQueue || [];
+                const prevRenderedCount = cacheData.renderedCount || PAGE_SIZE;
+
+                if (cacheData.usersCacheEntries) cacheData.usersCacheEntries.forEach(([k, v]) => usersCache.set(k, v));
+
+                feedContainer.innerHTML = '';
+                const slice = photoBuffer.slice(0, prevRenderedCount);
+                slice.forEach(photo => feedContainer.appendChild(createPostCard(photo)));
+                renderedCount = prevRenderedCount;
+
+                ensureSentinel(feedContainer);
+                setupInfiniteScroll();
+
+                // ✅ FIX: Re-fetch real scores even when restoring from cache
+                loadCurrentMonthScores();
+
+                // Wait for images to begin loading before restoring scroll position.
+                // Using 200ms gives the browser time to calculate image heights.
+                if (savedScroll) {
+                    setTimeout(() => window.scrollTo({ top: parseInt(savedScroll), behavior: 'instant' }), 200);
+                }
+                return; // Instant load complete!
+            }
+
+            // Normal Parallel Fetch
+            const usersSnapshot = await getDocs(collection(db, 'users'));
+            usersSnapshot.forEach(d => usersCache.set(d.id, d.data()));
+            monthsQueue = buildMonthsQueue('2025-01');
+            await fetchNextMonth();
+            await loadCurrentMonthScores(); // ✅ FIX: Populate real scores before rendering
+            renderNextBatch();
+            setupInfiniteScroll();
+
+            // ✅ BUG 3 FIX: Removed _watchForNewPosts() call — opening 1 onSnapshot
+            // per user (500 listeners for 500 users) crashes mobile browsers and
+            // exhausts Firebase quotas. Feed posts are fetched once on load.
+
+        } catch (error) {
+            console.error('Error loading feed:', error);
+            feedContainer.innerHTML = `<div class="empty-state"><h2>⚠️ Error</h2><p>${error.message}</p></div>`;
+        }
+    }
+
+    // ✅ BUG 3 FIX: _watchForNewPosts() and activeUserListeners DELETED.
+    // They opened one onSnapshot per cached user (N WebSocket connections).
+    // Score updates are now applied locally in handleLike instead.
+
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // 🏆 SCORE FIX: Load real current-month scores for each user
+    // Priority: monthlyRankings (Cloud Function data) → fallback from photoBuffer
+    // This replaces the broken "currentMonthScore" field on /users which was
+    // never being written, causing every score badge to show 0.
+    // ══════════════════════════════════════════════════════════════════════════
+    async function loadCurrentMonthScores() {
+        try {
+            // ① Best source: monthlyRankings sub-collection (populated by Cloud Function)
+            const snap = await getDocs(collection(db, `monthlyRankings/${currentMonthYear}/users`));
+            if (!snap.empty) {
+                snap.forEach(d => {
+                    const uid = d.id;
+                    const score = d.data().totalScore || 0;
+                    if (usersCache.has(uid)) {
+                        usersCache.get(uid).currentMonthScore = score;
+                    } else {
+                        usersCache.set(uid, { currentMonthScore: score });
+                    }
+                });
+                // Patch score badges already in the DOM
+                patchScoreBadgesFromCache();
+                updateAllRankColors();
+                return;
+            }
+        } catch (_) {}
+
+        // ② Fallback: tally from photos already fetched into photoBuffer
+        const scoreMap = new Map();
+        photoBuffer.forEach(p => {
+            if (p.monthYear !== currentMonthYear) return;
+            const likes = Math.round((p.likes || 0) * (p.goldenHourMultiplier || 1.0));
+            const pts   = (p.rating || 0) + likes;
+            scoreMap.set(p.userId, (scoreMap.get(p.userId) || 0) + pts);
+        });
+        scoreMap.forEach((score, uid) => {
+            if (usersCache.has(uid)) {
+                usersCache.get(uid).currentMonthScore = score;
+            }
+        });
+        patchScoreBadgesFromCache();
+        updateAllRankColors();
+    }
+
+    // Patch every score badge already rendered in the DOM using the freshly loaded cache
+    function patchScoreBadgesFromCache() {
+        document.querySelectorAll('[id^="live-score-"]').forEach(box => {
+            const photoId = box.id.replace('live-score-', '');
+            // Find the card that owns this badge and get its userId
+            const card = box.closest('.post-card');
+            if (!card) return;
+            const uid = card.getAttribute('data-userid');
+            if (!uid) return;
+            const cached = usersCache.get(uid);
+            if (cached && cached.currentMonthScore !== undefined) {
+                const numEl = box.querySelector('.score-number');
+                if (numEl) numEl.textContent = cached.currentMonthScore;
+            }
+        });
+    }
+
+    function createPostCard(photo) {
+        const card = document.createElement('div');
+        card.className = 'post-card';
+        // 🚨 We attach the userId to the card so we can update ALL their photos at once
+        card.setAttribute('data-userid', photo.userId); 
+        
+        const isLiked = photo.likedBy && photo.likedBy.includes(currentUser.uid);
+        // Golden Hour: likes on golden-hour photos worth 1.2x visually
+        const goldenMultiplier = photo.goldenHourMultiplier || 1.0;
+        const likeCount = photo.likes || 0;
+        const displayLikes = photo.isGoldenHour ? Math.round(likeCount * goldenMultiplier) : likeCount;
+
+        const userAvatarHTML = photo.photoURL 
+            ? `<img src="${photo.photoURL}" alt="${photo.username}">`
+            : photo.username.charAt(0).toUpperCase();
+
+        // Use cached score if we have it, otherwise show a clean "..." temporarily
+        const cachedUser = usersCache.get(photo.userId);
+        const displayScore = (cachedUser && cachedUser.currentMonthScore !== undefined) 
+            ? cachedUser.currentMonthScore 
+            : '...';
+        
+        // 🏆 Lifetime title
+        const lifetimeTitle = cachedUser?.lifetimeTitle || '';
+
+        // Calculate photo's exact month folder for commenting logic
+        const pDate = new Date(photo.uploadTimestamp || Date.now());
+        const photoMonthYear = `${pDate.getFullYear()}-${String(pDate.getMonth() + 1).padStart(2, '0')}`;
+
+        // Generate description HTML if it exists
+        const descriptionHtml = photo.description ? `
+            <div class="post-description" style="font-size: 14px; line-height: 1.4; width: 100%; min-width: 0; text-align: left; margin-top: 8px; word-wrap: break-word; overflow-wrap: break-word; overflow: hidden;">
+                <strong style="cursor: pointer; color: #fff;" onclick="viewUserProfile('${photo.userId}')">${photo.username}</strong> 
+                <span style="color: #ccc;">${photo.description}</span>
+            </div>
+        ` : '';
+
+        // 🌅 Golden Hour badge
+        const goldenBadge = photo.isGoldenHour ? `<div class="golden-hour-badge">🌅 GOLDEN</div>` : '';
+        if (photo.isGoldenHour) card.classList.add('golden-hour-post');
+
+        // ⚡ Flash challenge badge
+        const flashBadge = photo.flashChallengeBonus > 0 
+            ? `<div style="position:absolute;top:10px;left:10px;background:linear-gradient(135deg,#7832ff,#b344ff);color:#fff;font-size:10px;font-weight:800;padding:3px 9px;border-radius:20px;z-index:5;letter-spacing:1px;">⚡ +${photo.flashChallengeBonus}PTS</div>`
+            : '';
+
+        card.innerHTML = `
+            <div class="post-header">
+                <div class="user-avatar" onclick="viewUserProfile('${photo.userId}')" style="cursor: pointer;">
+                    ${userAvatarHTML}
+                </div>
+                <div class="user-info">
+                    <h3 onclick="viewUserProfile('${photo.userId}')" style="cursor: pointer;">${photo.username}</h3>
+                    <p>${formatDate(photo.uploadTimestamp || Date.now())}${lifetimeTitle ? ` · <span class="lifetime-title-tag" style="display:inline;font-size:11px;color:#888;">${lifetimeTitle}</span>` : ''}</p>
+                </div>
+                
+                <div class="user-live-score" id="live-score-${photo.id}">
+                    <span class="score-number">${displayScore}</span> Pts
+                </div>
+            </div>
+
+            <div class="post-image-container">
+                <img src="${photo.imageUrl}" alt="Photo" class="post-image" loading="lazy" onerror="this.style.display='none'" onload="this.classList.add('loaded'); this.parentElement.classList.add('img-ready')">
+                <div class="pulse-heart" id="pulse-${photo.id}">❤️</div>
+                ${goldenBadge}
+                ${flashBadge}
+            </div>
+
+            <div class="post-footer" style="padding: 12px 15px; display: flex; flex-direction: column; align-items: flex-start; width: 100%; box-sizing: border-box;">
+                <div class="post-actions" style="display: flex; justify-content: space-between; align-items: center; width: 100%; box-sizing: border-box; gap: 8px;">
+                    
+                    <div style="display: flex; gap: 16px; align-items: center; flex-shrink: 0;">
+                        <button class="like-btn" data-photo-id="${photo.id}" data-user-id="${photo.userId}" style="background:none;border:none;cursor:pointer;display:flex;align-items:center;color:white;font-size:24px;gap:6px;transition:transform 0.1s;flex-shrink:0;">
+                            ${isLiked ? '❤️' : '🤍'}
+                            <span class="like-count" style="font-size:16px;">${displayLikes}</span>
+                        </button>
+                        
+                        <button type="button" onclick="openCommentsModal('${photo.id}', '${photo.userId}', '${photoMonthYear}')" style="background:none;border:none;cursor:pointer;display:flex;align-items:center;color:white;font-size:24px;gap:6px;">
+                            <div style="width:24px; height:24px; background-color:#0cc0df; -webkit-mask:url(comment.svg) center/contain no-repeat; mask:url(comment.svg) center/contain no-repeat;"></div>
+                            <span class="comment-count" id="comment-count-${photo.id}" style="font-size:16px;">${photo.commentCount || 0}</span>
+                        </button>
+                        
+                        <button type="button" onclick="openShareModal('${photo.imageUrl}')" style="background:none;border:none;cursor:pointer;display:flex;align-items:center;">
+                            <div style="width:24px; height:24px; background-color:#0cc0df; -webkit-mask:url(share.svg) center/contain no-repeat; mask:url(share.svg) center/contain no-repeat;"></div>
+                        </button>
+
+                        <!-- 🎭 ROAST button -->
+                        <button type="button" onclick="handleRoastPhoto('${photo.id}', '${photo.imageUrl}')" 
+                            style="background:none;border:none;cursor:pointer;font-size:18px;padding:2px 4px;opacity:0.7;transition:opacity 0.2s;"
+                            title="AI Roast this photo 🎭"
+                            onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'">
+                            🎭
+                        </button>
+                    </div>
+
+                    <div class="rating-badge" style="font-size:16px; font-weight:bold; color:#fff;">
+                        ${photo.rating || 0}<span style="font-size:12px;color:#aaa;">/77</span>
+                    </div>
+                </div>
+                
+                <!-- Roast output area (hidden by default) -->
+                <div id="roast-${photo.id}" style="display:none; margin-top:10px; padding:10px 14px; background:linear-gradient(135deg,rgba(255,60,60,0.1),rgba(255,100,0,0.08)); border:1px solid rgba(255,80,50,0.3); border-radius:10px; font-size:13px; color:#ffb3a0; line-height:1.5; width:100%;"></div>
+                
+                ${descriptionHtml}
+            </div>
+        `;
+
+        const likeBtn = card.querySelector('.like-btn');
+        likeBtn.addEventListener('click', () => handleLike(photo, likeBtn));
+
+        // Double-Tap-to-Like Feature
+        const imageContainer = card.querySelector('.post-image-container');
+        const pulseHeart = card.querySelector('.pulse-heart');
+        let lastTap = 0;
+
+        imageContainer.addEventListener('touchend', (e) => {
+            const currentTime = new Date().getTime();
+            const tapGap = currentTime - lastTap;
+            lastTap = currentTime;
+
+            if (tapGap < 300 && tapGap > 0) {
+                if (!likeBtn.innerHTML.includes('❤️')) {
+                    if (window.navigator && window.navigator.vibrate) {
+                        window.navigator.vibrate([15, 30, 10]); // Premium haptic click
+                    }
+                    
+                    pulseHeart.classList.add('active');
+                    setTimeout(() => pulseHeart.classList.remove('active'), 1000);
+
+                    const touch = e.changedTouches[0];
+                    handleLike(photo, likeBtn, touch.clientX, touch.clientY);
+                }
+            }
+        });
+
+        // Apply initial rank color if already known in cache
+        applyRankColors(card, photo.userId);
+
+        return card;
+    }
+
+    // 🏆 Recalculates leaderboard logic for feed colors
+    function updateAllRankColors() {
+        const rankedIds = [...usersCache.entries()]
+            .filter(entry => (entry[1].currentMonthScore || 0) > 0)
+            .sort((a, b) => b[1].currentMonthScore - a[1].currentMonthScore)
+            .map(entry => entry[0]);
+
+        document.querySelectorAll('.post-card').forEach(card => {
+            const cardUserId = card.getAttribute('data-userid');
+            if (!cardUserId) return;
+
+            card.classList.remove('rank-gold', 'rank-silver', 'rank-bronze');
+            
+            const rank = rankedIds.indexOf(cardUserId) + 1;
+            if (rank === 1) card.classList.add('rank-gold');
+            else if (rank === 2) card.classList.add('rank-silver');
+            else if (rank === 3) card.classList.add('rank-bronze');
+        });
+    }
+
+    // Quick application for initial rendering
+    function applyRankColors(card, userId) {
+        const rankedIds = [...usersCache.entries()]
+            .filter(entry => (entry[1].currentMonthScore || 0) > 0)
+            .sort((a, b) => b[1].currentMonthScore - a[1].currentMonthScore)
+            .map(entry => entry[0]);
+
+        const rank = rankedIds.indexOf(userId) + 1;
+        if (rank === 1) card.classList.add('rank-gold');
+        else if (rank === 2) card.classList.add('rank-silver');
+        else if (rank === 3) card.classList.add('rank-bronze');
+    }
+
+    // 🌟 FIX: Added spam-lock and Atomic database increments
+    async function handleLike(photo, button, startX, startY) {
+        if (!currentUser || button.disabled) return;
+        button.disabled = true; // 🚨 Lock button to prevent double-counting bugs
+
+        const isCurrentlyLiked = button.innerHTML.includes('❤️');
+        const countSpan = button.querySelector('.like-count');
+        let currentCount = parseInt(countSpan.textContent) || 0;
+
+        const newIsLiked = !isCurrentlyLiked;
+        const newCount = newIsLiked ? currentCount + 1 : Math.max(0, currentCount - 1);
+
+        // Instantly update UI text for the heart button
+        button.innerHTML = `
+            ${newIsLiked ? '❤️' : '🤍'}
+            <span class="like-count" style="font-size:16px;">${newCount}</span>
+        `;
+
+        // ✅ BUG 3 FIX: Update the user's total score locally in the DOM.
+        // Since we deleted ensureLiveUserScore (which was 1 WebSocket per user),
+        // we compute the delta here and apply it directly — no network call needed.
+        const scoreBox = document.getElementById(`live-score-${photo.id}`);
+        if (scoreBox) {
+            const scoreElement = scoreBox.querySelector('.score-number');
+            if (scoreElement) {
+                let currentScore = parseInt(scoreElement.textContent) || 0;
+                const goldenMultiplier = photo.goldenHourMultiplier || 1.0;
+
+                // ✅ FIX (Golden Hour Math Desync): Calculate the true delta based on
+                // the total like count, not a flat +1/-1. Math.round(4 * 1.2) = 5,
+                // but four flat +1 increments only sum to 4 — this fixes that gap.
+                const oldLikesScore = Math.round(currentCount * goldenMultiplier);
+                const newLikesScore = Math.round(newCount    * goldenMultiplier);
+                const delta = newLikesScore - oldLikesScore;
+
+                currentScore += delta;
+                scoreElement.textContent = currentScore;
+
+                // Sync cache so rank colours stay accurate
+                if (usersCache.has(photo.userId)) {
+                    usersCache.get(photo.userId).currentMonthScore = currentScore;
+                }
+                updateAllRankColors();
+            }
+        }
+
+        // Trigger animation
+        const rect = button.getBoundingClientRect();
+        const animX = startX || (rect.left + rect.width / 2);
+        const animY = startY || (rect.top + rect.height / 2);
+        
+        const photoDate = new Date(photo.uploadTimestamp);
+        const photoMonthYear = `${photoDate.getFullYear()}-${String(photoDate.getMonth() + 1).padStart(2, '0')}`;
+        
+        if (photoMonthYear === currentMonthYear) {
+            animateFloatingPoint(button, photo.id, newIsLiked, animX, animY);
+        }
+
+        try {
+            const photoRef = doc(db, `dailyUploads/${photoMonthYear}/${photo.userId}`, photo.id);
+            
+            // 🚨 Use secure Atomic operations so the backend math is always perfect
+            await updateDoc(photoRef, {
+                likes: increment(newIsLiked ? 1 : -1),
+                likedBy: newIsLiked ? arrayUnion(currentUser.uid) : arrayRemove(currentUser.uid)
+            });
+
+            // 🚨 FIX: Delete the cached rankings so the leaderboard fetches the fresh score!
+            sessionStorage.removeItem(`cachedRankings_${photoMonthYear}`);
+            
+            setTimeout(() => button.disabled = false, 400); // Unlock button after successful save
+        } catch (error) {
+            console.error('Error updating like:', error);
+            button.disabled = false;
+        }
+    }
+
+    // 🌟 FIX: Removed conflicting manual math from the animation
+    function animateFloatingPoint(button, photoId, isLiked, startX, startY) {
+        const targetScoreBox = document.getElementById(`live-score-${photoId}`);
+        if (!targetScoreBox) return;
+
+        const floater = document.createElement('div');
+        floater.className = 'floating-point';
+        floater.textContent = isLiked ? '+1' : '-1';
+        floater.style.color = isLiked ? '#0cc0df' : '#ff3366';
+
+        floater.style.left = startX + 'px';
+        floater.style.top = startY + 'px';
+
+        document.body.appendChild(floater);
+        floater.getBoundingClientRect(); // Force browser register
+
+        const targetRect = targetScoreBox.getBoundingClientRect();
+        const endX = targetRect.left + (targetRect.width / 2) - startX;
+        const endY = targetRect.top + (targetRect.height / 2) - startY;
+
+        floater.style.transform = `translate(${endX}px, ${endY}px) scale(1.5)`;
+        floater.style.opacity = '0';
+
+        setTimeout(() => {
+            floater.remove(); 
+            // The Firebase onSnapshot listener handles the number change automatically now!
+            targetScoreBox.classList.add('pop');
+            setTimeout(() => targetScoreBox.classList.remove('pop'), 200);
+        }, 800);
+    }
+
+
+    function formatDate(timestamp) {
+        const date = new Date(timestamp);
+        const now = new Date();
+        const diffMs = now - date;
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMs / 3600000);
+
+        if (diffMins < 1) return 'Just now';
+        if (diffMins < 60) return `${diffMins} min${diffMins > 1 ? 's' : ''} ago`;
+        if (diffHours < 24) return `${diffHours} hr${diffHours > 1 ? 's' : ''} ago`;
+        return date.toLocaleDateString();
+    }
+
+    function updateAPILimitDisplay() {
+        const remaining = rateLimiter.getRemainingCalls();
+        const warningDiv = document.getElementById('apiLimitWarning');
+        const remainingSpan = document.getElementById('remainingCalls');
+        
+        if (warningDiv && remainingSpan && remaining < 100) {
+            warningDiv.style.display = 'block';
+            remainingSpan.textContent = remaining;
+        }
+    }
+
+    function updateProgressStep(stepNumber, status, icon = '') {
+        const step = document.getElementById(`step${stepNumber}`);
+        if (!step) return;
+        step.className = 'progress-step ' + status;
+        const iconElement = step.querySelector('.progress-icon');
+        if (!iconElement) return;
+        iconElement.className = 'progress-icon';
+        if (icon === 'loading') {
+            iconElement.className += ' loading';
+            iconElement.textContent = '';
+        } else if (status === 'complete') {
+            iconElement.textContent = '✓';
+        } else if (status === 'error') {
+            iconElement.textContent = '✗';
+        } else {
+            iconElement.textContent = stepNumber;
+        }
+    }
+
+    function resetProgressSteps() {
+        for (let i = 1; i <= 5; i++) {
+            const step = document.getElementById(`step${i}`);
+            if (!step) continue;
+            step.className = 'progress-step';
+            const icon = step.querySelector('.progress-icon');
+            if (icon) {
+                icon.className = 'progress-icon';
+                icon.textContent = i;
+            }
+        }
+    }
+
+    const uploadModal = document.getElementById('uploadModal');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const uploadArea = document.getElementById('uploadArea');
+    const fileInput = document.getElementById('fileInput');
+    const previewContainer = document.getElementById('previewContainer');
+    const previewImage = document.getElementById('previewImage');
+    const uploadSubmitBtn = document.getElementById('uploadSubmitBtn');
+    const errorMessage = document.getElementById('errorMessage');
+    const successMessage = document.getElementById('successMessage');
+    const progressBar = document.getElementById('progressBar');
+    const progressFill = document.getElementById('progressFill');
+
+    let selectedFile = null;
+
+    uploadBtn.addEventListener('click', async () => {
+        if (!currentUser) {
+            alert('Please log in first');
+            window.location.href = 'login.html';
+            return;
+        }
+        uploadModal.classList.add('active');
+        resetUploadModal();
+        updateAPILimitDisplay();
+
+        // Show Golden Hour notice inside modal
+        const ghNotice = document.getElementById('uploadGoldenNotice');
+        if (ghNotice) ghNotice.style.display = isGoldenHour() ? 'block' : 'none';
+
+        // ✅ FIX (BUG 2 — Timezone): Use local date so IST day boundaries are respected
+        const today = new Date().toLocaleDateString('en-CA');
+        const monthYear = new Date().toLocaleDateString('en-CA').slice(0, 7);
+        const todayDocRef = doc(db, `dailyUploads/${monthYear}/${currentUser.uid}`, today);
+        const todayDoc = await getDoc(todayDocRef);
+        if (todayDoc.exists()) {
+            showUploadCountdown();
+        }
+    });
+
+    function closeUploadModal() {
+        uploadModal.classList.remove('active');
+        resetUploadModal();
+    }
+
+    closeModalBtn.addEventListener('click', closeUploadModal);
+    cancelBtn.addEventListener('click', closeUploadModal);
+
+    function resetUploadModal() {
+        selectedFile = null;
+        fileInput.value = '';
+        previewContainer.classList.remove('active');
+        uploadSubmitBtn.disabled = false;
+        errorMessage.classList.remove('active');
+        successMessage.classList.remove('active');
+        progressBar.classList.remove('active');
+        progressFill.style.width = '0%';
+        uploadArea.style.display = 'block'; 
+        document.getElementById('uploadCountdown').style.display = 'none';
+        document.getElementById('uploadSubmitBtn').style.display = '';
+        if (window._countdownInterval) { clearInterval(window._countdownInterval); }
+        
+        const uploadProgress = document.getElementById('uploadProgress');
+        if (uploadProgress) { uploadProgress.style.display = 'none'; }
+        resetProgressSteps();
+    }
+
+    function showUploadCountdown() {
+        // Hide the upload UI, show the countdown
+        uploadArea.style.display = 'none';
+        previewContainer.classList.remove('active');
+        document.getElementById('uploadSubmitBtn').style.display = 'none';
+        const countdown = document.getElementById('uploadCountdown');
+        countdown.style.display = 'block';
+
+        function tick() {
+            const now = new Date();
+            const midnight = new Date();
+            midnight.setHours(24, 0, 0, 0);
+            const diff = midnight - now;
+            const h = String(Math.floor(diff / 3600000)).padStart(2, '0');
+            const m = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
+            const s = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
+            const el = document.getElementById('countdownTimer');
+            if (el) el.textContent = `${h}:${m}:${s}`;
+        }
+        tick();
+        if (window._countdownInterval) clearInterval(window._countdownInterval);
+        window._countdownInterval = setInterval(tick, 1000);
+    }
+
+    uploadArea.addEventListener('click', () => fileInput.click());
+
+    fileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) handleFileSelect(file);
+    });
+
+    uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.style.borderColor = '#0cc0df';
+        uploadArea.style.background = '#222';
+    });
+
+    uploadArea.addEventListener('dragleave', () => {
+        uploadArea.style.borderColor = '#555';
+        uploadArea.style.background = 'transparent';
+    });
+
+    uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.style.borderColor = '#555';
+        uploadArea.style.background = 'transparent';
+        const file = e.dataTransfer.files[0];
+        if (file) handleFileSelect(file);
+    });
+
+    function handleFileSelect(file) {
+        if (!file.type.match('image/(jpeg|png|webp)')) {
+            showError('Please select a valid image file (JPG, PNG, or WebP)');
+            return;
+        }
+
+        if (file.size > 10 * 1024 * 1024) {
+            showError('File size must be less than 10MB');
+            return;
+        }
+
+        selectedFile = file;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            previewImage.src = e.target.result;
+            previewContainer.classList.add('active');
+            uploadSubmitBtn.disabled = false;
+            uploadArea.style.display = 'none'; 
+        };
+        reader.readAsDataURL(file);
+    }
+
+    uploadSubmitBtn.addEventListener('click', handlePhotoUpload);
+
+    async function handlePhotoUpload() {
+        if (!selectedFile || !currentUser) return;
+
+        // ✅ UPDATED: MultiLayerImageChecker replaces the old broken ReverseImageSearch
+        const reverseSearch = new MultiLayerImageChecker(GOOGLE_VISION_API_KEY);
+
+        if (!rateLimiter.canMakeCall()) {
+            showError('Daily API limit reached (100 searches/day). Please try again tomorrow!');
+            return;
+        }
+
+        try {
+            uploadSubmitBtn.disabled = true;
+            errorMessage.classList.remove('active');
+            
+            const uploadProgress = document.getElementById('uploadProgress');
+            if (uploadProgress) { uploadProgress.style.display = 'block'; }
+            
+            progressBar.classList.add('active');
+            progressFill.style.width = '10%';
+
+            // STEP 1: Initialization & DAILY LIMIT CHECK
+            updateProgressStep(1, 'active', 'loading');
+            
+            // ✅ FIX (BUG 2 — Timezone): Use local date to match backend IST date logic
+            const today = new Date().toLocaleDateString('en-CA');
+            const monthYear = new Date().toLocaleDateString('en-CA').slice(0, 7);
+            const newUploadDocRef = doc(db, `dailyUploads/${monthYear}/${currentUser.uid}`, today);
+            
+            // 🚨 FIX: Check if they already uploaded today
+            const existingDoc = await getDoc(newUploadDocRef);
+            if (existingDoc.exists()) {
+                showError('⏳ You have already uploaded your daily photo! Come back tomorrow to earn more points.');
+                uploadSubmitBtn.disabled = false;
+                progressBar.classList.remove('active');
+                showUploadCountdown();
+                return; // Stop the upload process
+            }
+            
+            updateProgressStep(1, 'complete');
+            progressFill.style.width = '15%';
+
+            // ─────────────────────────────────────────────────────
+            // STEP 2: Perceptual Hash — local duplicate check
+            // Runs entirely on-device. No network call, no ImgBB waste.
+            // ─────────────────────────────────────────────────────
+            updateProgressStep(2, 'active', 'loading');
+
+            let pendingHashes = null;
+            if (typeof window.checkImageDuplicate === 'function') {
+                const hashResult = await window.checkImageDuplicate(selectedFile, db, currentUser.uid);
+                if (hashResult.isDuplicate) {
+                    updateProgressStep(2, 'error');
+                    showError('🚫 ' + hashResult.reason);
+                    uploadSubmitBtn.disabled = false;
+                    progressBar.classList.remove('active');
+                    return;
+                }
+                pendingHashes = hashResult.hashes; // saved for Step 6
+            }
+
+            updateProgressStep(2, 'complete');
+            progressFill.style.width = '28%';
+
+            // ─────────────────────────────────────────────────────
+            // STEP 3: EXIF check + ImgBB upload
+            // Free & instant local check first. Only uploads to ImgBB
+            // if EXIF passes — no wasted bandwidth on downloaded images.
+            // ─────────────────────────────────────────────────────
+            updateProgressStep(3, 'active', 'loading');
+
+            // ✅ Layer 1: EXIF metadata check — catches downloads/screenshots locally
+            const exifResult = await reverseSearch.checkFileLocally(selectedFile);
+            if (exifResult.isFoundOnline) {
+                updateProgressStep(3, 'error');
+                showError(
+                    `⚠️ This image appears to be downloaded or a screenshot.\n\n` +
+                    `Reason: ${exifResult.details || 'No camera metadata found in this JPEG.'}\n\n` +
+                    `Please upload an original photo taken with your camera or phone.`
+                );
+                uploadSubmitBtn.disabled = false;
+                progressBar.classList.remove('active');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('image', selectedFile);
+
+            const imgbbResponse = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+                method: 'POST',
+                body: formData
+            });
+
+            const imgbbData = await imgbbResponse.json();
+
+            if (!imgbbData.success) {
+                throw new Error('Failed to upload image to ImgBB');
+            }
+
+            const photoURL = imgbbData.data.url;
+            updateProgressStep(3, 'complete');
+            progressFill.style.width = '45%';
+
+            // ─────────────────────────────────────────────────────
+            // STEP 4: Google Vision Web Detection
+            // Checks if the image exists anywhere on the internet.
+            // Free tier: 1,000/month. Only runs on images that passed EXIF.
+            // ─────────────────────────────────────────────────────
+            updateProgressStep(4, 'active', 'loading');
+
+            rateLimiter.recordCall();
+            updateAPILimitDisplay();
+
+            const reverseResult = await reverseSearch.checkImageOnline(photoURL);
+
+            if (reverseResult.isFoundOnline) {
+                updateProgressStep(4, 'error');
+
+                let errorMsg = `⚠️ This image already exists online!\n\nSource: ${reverseResult.source}\n`;
+                if (reverseResult.results && reverseResult.results.length > 0) {
+                    errorMsg += `\nFound on:\n`;
+                    reverseResult.results.slice(0, 3).forEach(match => {
+                        errorMsg += `• ${match.source}\n`;
+                    });
+                }
+                errorMsg += '\nPlease upload an original photo taken by you.';
+
+                showError(errorMsg);
+                uploadSubmitBtn.disabled = false;
+                progressBar.classList.remove('active');
+                return;
+            }
+
+            updateProgressStep(4, 'complete');
+            progressFill.style.width = '62%';
+
+            // ─────────────────────────────────────────────────────
+            // STEP 5: AI Rating via Gemini
+            // Only runs AFTER all free checks pass — Gemini API calls
+            // are precious and must never be wasted on rejected images.
+            // ─────────────────────────────────────────────────────
+            updateProgressStep(5, 'active', 'loading');
+
+            let rating       = 0;
+            let aiFeedback   = '';
+            let ratingFailed = false;
+
+            try {
+                const imageDataUrl = await new Promise((resolve, reject) => {
+                    const reader   = new FileReader();
+                    reader.onload  = e => resolve(e.target.result);
+                    reader.onerror = () => reject(new Error('Failed to read image file'));
+                    reader.readAsDataURL(selectedFile);
+                });
+
+                const ratingSystem = new PhotoRatingSystem();
+                const ratingResult = await ratingSystem.analyzePhoto(imageDataUrl);
+
+                if (ratingResult.rejected) {
+                    updateProgressStep(5, 'error');
+                    showError(`⚠️ Image rejected: ${ratingResult.reason}\nPlease upload a clear, original photograph.`);
+                    uploadSubmitBtn.disabled = false;
+                    progressBar.classList.remove('active');
+                    return;
+                }
+
+                rating     = Math.round(ratingResult.total);
+                aiFeedback = ratingResult.feedback || '';
+
+            } catch (error) {
+                console.error('Rating calculation error:', error);
+                ratingFailed = true;
+
+                const errMsg = error.message || '';
+                if (
+                    errMsg.includes('not configured') ||
+                    errMsg.includes('Invalid Gemini') ||
+                    errMsg.includes('OAuth2') ||
+                    errMsg.includes('API keys are not supported')
+                ) {
+                    updateProgressStep(5, 'error');
+                    showError(
+                        '❌ Gemini API key error:\n' + errMsg +
+                        '\n\nAction required: open rating-algorithm.js and paste your key from https://aistudio.google.com/app/apikey'
+                    );
+                    uploadSubmitBtn.disabled = false;
+                    progressBar.classList.remove('active');
+                    return;
+                }
+
+                console.warn('⚠️ Gemini unavailable, using fallback rating of 35');
+                rating     = 35;
+                aiFeedback = 'AI rating unavailable (fallback score applied)';
+            }
+
+            rating = Math.max(1, Math.min(77, rating));
+
+            updateProgressStep(5, 'complete');
+            progressFill.style.width = '80%';
+
+            // ─────────────────────────────────────────────────────
+            // STEP 5.5: Flash Challenge & Golden Hour bonus check
+            // ─────────────────────────────────────────────────────
+            let flashBonus = 0;
+            let isGoldenHourUpload = isGoldenHour();
+
+            if (_activeFlashChallenge) {
+                try {
+                    const imageDataUrlForFlash = await new Promise((resolve, reject) => {
+                        const r = new FileReader();
+                        r.onload = e => resolve(e.target.result);
+                        r.onerror = () => reject(new Error('read fail'));
+                        r.readAsDataURL(selectedFile);
+                    });
+                    flashBonus = await checkFlashChallengeMatch(imageDataUrlForFlash, _activeFlashChallenge);
+                    if (flashBonus > 0) {
+                        showCustomToast(`⚡ Flash Challenge matched! +${flashBonus} bonus points!`);
+                        rating = Math.min(77 + flashBonus, 77 + 20); // Allow over 77 for bonus
+                    }
+                } catch (_) {}
+            }
+
+            // ─────────────────────────────────────────────────────
+            // STEP 6: Save to database
+            // All checks passed — prompt for description then commit.
+            // ─────────────────────────────────────────────────────
+            document.getElementById('uploadProgress').style.display = 'none';
+            document.getElementById('uploadDescriptionStep').style.display = 'block';
+
+            const finalDescription = await new Promise((resolve) => {
+                document.getElementById('skipDescBtn').onclick = () => {
+                    document.getElementById('uploadDescriptionStep').style.display = 'none';
+                    resolve('');
+                };
+                document.getElementById('saveDescBtn').onclick = () => {
+                    const val = document.getElementById('postDescriptionInput').value.trim();
+                    document.getElementById('uploadDescriptionStep').style.display = 'none';
+                    resolve(val);
+                };
+            });
+
+            document.getElementById('uploadProgress').style.display = 'block';
+            updateProgressStep(6, 'active', 'loading');
+
+            await setDoc(newUploadDocRef, {
+                imageUrl: photoURL,
+                rating: rating,
+                uploadTimestamp: Date.now(),
+                likes: 0,
+                likedBy: [],
+                description: finalDescription,
+                isVerified: true,
+                reverseSearchChecked: true,
+                flashChallengeBonus: flashBonus || 0,
+                isGoldenHour: isGoldenHourUpload || false,
+                goldenHourMultiplier: isGoldenHourUpload ? 1.2 : 1.0
+            });
+
+            // ✅ Save perceptual hashes onto the photo doc so future uploads can be checked against it
+            if (pendingHashes && typeof window.saveImageHashes === 'function') {
+                await window.saveImageHashes(newUploadDocRef, pendingHashes);
+            }
+
+            const userRef = doc(db, 'users', currentUser.uid);
+
+            // ✅ FIX: Removed client-side 'totalScore' update to prevent double-counting.
+            // The updateRankingsOnUpload Cloud Function handles score math securely.
+            await updateDoc(userRef, {
+                lastUpload: today
+            });
+
+            updateProgressStep(6, 'complete');
+            progressFill.style.width = '100%';
+
+            const feedbackLine = aiFeedback ? `\n💬 "${aiFeedback}"` : '';
+            showSuccess(`✅ Photo uploaded! Rating: ${rating}/77${feedbackLine}`);
+            sessionStorage.removeItem('shutterSoulFeedCache'); // Clear cache so new photo appears
+
+            setTimeout(() => {
+                closeUploadModal();
+                loadFeed();
+            }, 2000);
+
+        } catch (error) {
+            console.error('Upload error:', error);
+            showError(`❌ Upload failed: ${error.message}`);
+            uploadSubmitBtn.disabled = false;
+            progressBar.classList.remove('active');
+
+            for (let i = 1; i <= 6; i++) {
+                const step = document.getElementById(`step${i}`);
+                if (step && step.classList.contains('active')) {
+                    updateProgressStep(i, 'error');
+                    break;
+                }
+            }
+        }
+    }
+
+    function showError(message) {
+        errorMessage.textContent = message;
+        errorMessage.classList.add('active');
+        // ✅ FIX: Error stays visible until the user closes/resets the modal.
+        // No auto-dismiss — the user must be able to read the full message.
+    }
+
+    function showSuccess(message) {
+        successMessage.textContent = message;
+        successMessage.classList.add('active');
+    }
+
+    window.loadFeed = loadFeed;
+    window.viewUserProfile = function(userId) {
+        window.location.href = `user_profile.html?userId=${userId}`;
+    };
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // 🎭 ROAST MY PHOTO — AI Sarcastic Critique
+    // ══════════════════════════════════════════════════════════════════════════
+    const _roastedPhotos = new Set(); // Track which photos have been roasted this session
+
+    window.handleRoastPhoto = async function(photoId, imageUrl) {
+        const roastDiv = document.getElementById(`roast-${photoId}`);
+        if (!roastDiv) return;
+
+        // Toggle: hide if already showing
+        if (roastDiv.style.display !== 'none' && roastDiv.textContent) {
+            roastDiv.style.display = 'none';
+            return;
+        }
+
+        // Show loading state
+        roastDiv.style.display = 'block';
+        roastDiv.innerHTML = `<span style="color:#888; font-style:italic;">🎭 AI is roasting this photo...</span>`;
+
+        try {
+            // Fetch the image and convert to base64 for Gemini
+            const response = await fetch(imageUrl);
+            const blob = await response.blob();
+            const reader = new FileReader();
+            const dataUrl = await new Promise((resolve, reject) => {
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+            });
+
+            const ratingSystem = new PhotoRatingSystem();
+            const roastText = await ratingSystem.roastPhoto(dataUrl);
+            roastDiv.innerHTML = `<span style="font-size:15px;">🎭</span> <em>"${roastText}"</em>`;
+        } catch (err) {
+            roastDiv.innerHTML = `<span style="color:#888; font-style:italic;">Roast failed — even our AI didn't know where to start.</span>`;
+            console.warn('Roast error:', err.message);
+        }
+    };
+// GLOBAL PRESENCE & CALL TRACKER
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                const myRef = ref(rtdb, `presence/${user.uid}`);
+                
+                // Set online when page loads
+                set(myRef, { state: 'online', last_changed: rtdbServerTimestamp(), userId: user.uid });
+                onDisconnect(myRef).set({ state: 'offline', last_changed: rtdbServerTimestamp(), userId: user.uid });
+
+                document.addEventListener('visibilitychange', () => {
+                    set(myRef, {
+                        state: document.hidden ? 'offline' : 'online',
+                        last_changed: rtdbServerTimestamp(),
+                        userId: user.uid
+                    });
+                });
+
+
+                // ✅ FIX: RACE-CONDITION PROOF GLOBAL INCOMING CALL BANNER
+                const callsQuery = query(collection(db, 'calls'), where('calleeId', '==', user.uid), where('status', '==', 'ringing'));
+                onSnapshot(callsQuery, (snap) => {
+                    snap.docChanges().forEach((change) => {
+                        const callData = change.doc.data();
+                        const bannerId = `globalCallBanner-${callData.callId}`; // Unique ID per call
+
+                        if (change.type === 'added') {
+                            // Tolerate client clock drift up to 2 minutes
+                            if (Date.now() - (callData.createdAt?.toMillis?.() || Date.now()) > 120000) return;
+
+                            // Fetch user but DON'T block the main thread
+                            getDoc(doc(db, 'users', callData.callerId)).then(cdSnap => {
+                                
+                                // 🚨 CRITICAL: Check the database ONE more time before creating the banner.
+                                // If the caller hung up while we were downloading their name, abort!
+                                getDoc(doc(db, 'calls', callData.callId)).then(currentCall => {
+                                    if (currentCall.exists() && currentCall.data().status === 'ringing') {
+                                        let callerName = 'Someone';
+                                        const cd = cdSnap.exists() ? cdSnap.data() : {};
+                                        callerName = cd.displayName || cd.customName || cd.name || cd.email?.split('@')[0] || 'Someone';
+
+                                        if (!document.getElementById(bannerId)) {
+                                            const banner = document.createElement('div');
+                                            banner.id = bannerId;
+                                            banner.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg, #667eea, #764ba2);color:white;padding:15px 30px;border-radius:50px;box-shadow:0 10px 30px rgba(0,0,0,0.6);z-index:99999;display:flex;align-items:center;gap:15px;cursor:pointer;transition:all 0.3s;animation:slideDown 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);';
+                                            banner.innerHTML = `
+                                                <span style="font-size:24px; animation: ring 1s infinite ease-in-out;">📞</span> 
+                                                <div>
+                                                    <div style="font-weight:bold; font-family: 'Segoe UI', Tahoma, sans-serif;">${callerName} is calling...</div>
+                                                    <div style="font-size:12px; opacity:0.9;">Click to answer</div>
+                                                </div>`;
+                                            banner.onclick = () => window.location.href = `message.html?callId=${callData.callId}&action=accept`;
+                                            
+                                            if (!document.getElementById('bannerStyles')) {
+                                                const style = document.createElement('style');
+                                                style.id = 'bannerStyles';
+                                                style.textContent = `
+                                                    @keyframes slideDown { from { top: -100px; opacity: 0; } to { top: 20px; opacity: 1; } }
+                                                    @keyframes ring { 0% { transform: rotate(0); } 10% { transform: rotate(15deg); } 20% { transform: rotate(-15deg); } 30% { transform: rotate(10deg); } 40% { transform: rotate(-10deg); } 50% { transform: rotate(0); } 100% { transform: rotate(0); } }
+                                                `;
+                                                document.head.appendChild(style);
+                                            }
+                                            document.body.appendChild(banner);
+                                            
+                                            // Auto-cleanup DOM if it somehow gets stuck
+                                            setTimeout(() => { if(banner) banner.remove(); }, 65000); 
+                                        }
+                                    }
+                                });
+                            });
+                        } else if (change.type === 'modified' || change.type === 'removed') {
+                            // Remove the specific banner associated with this callId
+                            if (callData.status !== 'ringing' || change.type === 'removed') {
+                                const banner = document.getElementById(bannerId);
+                                if (banner) banner.remove();
+                            }
+                        }
+                    });
+                });
+            }
+        });
+
+    // 🚨 NEW: Check if user already uploaded today and show countdown on the upload button
+    async function checkDailyUploadStatus() {
+        if (!currentUser) return;
+
+        // ✅ FIX (BUG 2 — Timezone): Use local date so IST day boundaries are respected
+        const today = new Date().toLocaleDateString('en-CA');
+        const monthYear = new Date().toLocaleDateString('en-CA').slice(0, 7);
+        const newUploadDocRef = doc(db, `dailyUploads/${monthYear}/${currentUser.uid}`, today);
+
+        try {
+            const existingDoc = await getDoc(newUploadDocRef);
+            const uploadBtn = document.getElementById('uploadSubmitBtn');
+
+            if (existingDoc.exists() && uploadBtn) {
+                // User already uploaded today — disable button and start countdown
+                uploadBtn.disabled = true;
+                uploadBtn.style.background = '#333';
+                uploadBtn.style.cursor = 'not-allowed';
+
+                setInterval(() => {
+                    const now = new Date();
+                    const tomorrow = new Date(now);
+                    tomorrow.setHours(24, 0, 0, 0); // Next midnight
+
+                    const diff = tomorrow - now;
+                    const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                    const s = Math.floor((diff % (1000 * 60)) / 1000);
+
+                    uploadBtn.innerHTML = `⏳ Next Upload In: ${h}h ${m}m ${s}s`;
+                }, 1000);
+            }
+        } catch (error) {
+            console.error("Error checking daily upload status:", error);
+        }
+    }
+    // 🚨 FIX 2.5: Remember scroll position
+    window.addEventListener('scroll', () => {
+        sessionStorage.setItem('shutterSoulScrollY', window.scrollY);
+    });
+    // ==========================================
+    // ==========================================
+    // 🌟 REPAIRED: COMMENTS LOGIC
+    // ==========================================
+    let activeCommentContext = null; 
+    let commentUnsubscribe = null;
+
+    window.openCommentsModal = function(photoId, userId, monthYear) {
+        activeCommentContext = { photoId, userId, monthYear, replyTo: null };
+        document.getElementById('commentsModal').style.display = 'flex';
+        
+        // ✅ BULLETPROOF: Instantly wipe old comments to prevent "ghost" flashing
+        document.getElementById('commentsList').innerHTML = '<div style="text-align:center; padding:20px; color:#0cc0df;">Loading comments...</div>';
+        
+        const commentsRef = collection(db, `dailyUploads/${monthYear}/${userId}/${photoId}/comments`);
+        const q = query(commentsRef, orderBy('timestamp', 'asc'));
+        
+        if (commentUnsubscribe) commentUnsubscribe();
+        
+        commentUnsubscribe = onSnapshot(q, (snapshot) => {
+            const commentsMap = {};
+            const commentsList = [];
+            let totalRealComments = 0; 
+            
+            snapshot.forEach(doc => {
+                totalRealComments++;
+                const data = doc.data();
+                data.id = doc.id;
+                if (!data.replyTo) {
+                    data.replies = [];
+                    commentsMap[data.id] = data;
+                    commentsList.push(data);
+                } else {
+                    if (commentsMap[data.replyTo]) {
+                        commentsMap[data.replyTo].replies.push(data);
+                    }
+                }
+            });
+
+            // ✅ FIX: Safely update the UI without triggering a database race condition.
+            const countSpan = document.getElementById(`comment-count-${photoId}`);
+            if (countSpan && totalRealComments > 0) {
+                countSpan.textContent = totalRealComments;
+                // 🚨 Removed the rogue updateDoc here that was causing double-counting!
+            }
+
+            renderCommentsUI(commentsList);
+        });
+    }
+
+    window.closeCommentsModal = function() {
+        document.getElementById('commentsModal').style.display = 'none';
+
+        // ✅ FIX: Wipe HTML on CLOSE so no ghost comments flash when the modal next opens
+        document.getElementById('commentsList').innerHTML = '';
+
+        if (commentUnsubscribe) commentUnsubscribe();
+    }
+
+    function renderCommentsUI(comments) {
+        const container = document.getElementById('commentsList');
+        container.innerHTML = '';
+        if (comments.length === 0) {
+            container.innerHTML = '<p style="text-align:center; color:#666; margin-top:20px;">No comments yet. Be the first!</p>';
+            return;
+        }
+        
+        comments.forEach(c => {
+            container.appendChild(buildCommentNode(c, false));
+            c.replies.forEach(r => container.appendChild(buildCommentNode(r, true)));
+        });
+    }
+
+    function buildCommentNode(comment, isReply) {
+        const div = document.createElement('div');
+        div.style.display = 'flex'; div.style.gap = '12px'; div.style.marginBottom = '15px';
+        if (isReply) div.style.marginLeft = '40px';
+
+        const avatar = comment.photoURL 
+            ? `<img src="${comment.photoURL}" style="width:35px;height:35px;border-radius:50%;object-fit:cover;">` 
+            : `<div style="width:35px;height:35px;border-radius:50%;background:#0cc0df;display:flex;align-items:center;justify-content:center;font-weight:bold;">${comment.username.charAt(0).toUpperCase()}</div>`;
+
+        div.innerHTML = `
+            ${avatar}
+            <div style="flex:1;">
+                <div style="font-size:14px;"><strong style="color:#ddd;">${comment.username}</strong> <span style="color:#888; font-size:11px; margin-left:8px;">${formatDate(comment.timestamp)}</span></div>
+                <div style="font-size:14px; margin-top:3px;">${comment.text}</div>
+                ${!isReply ? `<div style="font-size:12px; color:#aaa; margin-top:5px; cursor:pointer; font-weight:bold;" onclick="setReplyTo('${comment.id}', '${comment.username}')">Reply</div>` : ''}
+            </div>
+        `;
+        return div;
+    }
+
+    window.setReplyTo = function(commentId, username) {
+        activeCommentContext.replyTo = commentId;
+        const indicator = document.getElementById('replyIndicator');
+        indicator.style.display = 'block';
+        indicator.innerHTML = `Replying to <strong>${username}</strong> <span style="float:right; cursor:pointer; color:#ff3366;" onclick="cancelReply()">✕ Cancel</span>`;
+        document.getElementById('commentInput').focus();
+    }
+
+    window.cancelReply = function() {
+        activeCommentContext.replyTo = null;
+        document.getElementById('replyIndicator').style.display = 'none';
+    }
+
+    window.submitComment = async function() {
+        const input = document.getElementById('commentInput');
+        const text = input.value.trim();
+        if (!text || !currentUser) return;
+
+        const { photoId, userId, monthYear, replyTo } = activeCommentContext;
+        const commentsRef = collection(db, `dailyUploads/${monthYear}/${userId}/${photoId}/comments`);
+        const photoRef = doc(db, `dailyUploads/${monthYear}/${userId}`, photoId);
+        
+        input.value = '';
+        cancelReply();
+
+        try {
+            const myUserDoc = await getDoc(doc(db, 'users', currentUser.uid));
+            const myData = myUserDoc.exists() ? myUserDoc.data() : {};
+            
+            const safeUsername = myData.displayName || myData.customName || currentUser.displayName || 'User';
+            const safePhotoURL = myData.photoURL || currentUser.photoURL || null;
+            
+            // 1. Save the comment
+            await addDoc(commentsRef, {
+                text: text, 
+                userId: currentUser.uid, 
+                username: safeUsername,
+                photoURL: safePhotoURL, 
+                timestamp: Date.now(), 
+                replyTo: replyTo
+            });
+
+            // 2. Only increment the counter for TOP-LEVEL comments, not replies.
+            // Replies are nested under a parent and should not inflate the feed counter.
+            if (!replyTo) {
+                await updateDoc(photoRef, {
+                    commentCount: increment(1)
+                });
+            }
+
+            // The active onSnapshot on the photo doc will update the feed counter automatically.
+
+        } catch (error) {
+            console.error("Error posting comment:", error);
+            alert("Network error: Could not post comment. Please try again.");
+        }
+    }
+
+    // ==========================================
+    // 🌟 NEW: SILENT SHARE TO CHAT LOGIC
+    // ==========================================
+    let selectedShareUsers = new Set();
+    let currentSharePhotoUrl = '';
+
+    window.openShareModal = async function(imageUrl) {
+        currentSharePhotoUrl = imageUrl;
+        selectedShareUsers.clear();
+        document.getElementById('shareModal').style.display = 'flex';
+        document.getElementById('shareUsersList').innerHTML = '<div style="text-align:center; padding:20px; color:#0cc0df;">Loading friends...</div>';
+        updateShareSendButton();
+
+        const usersSnap = await getDocs(collection(db, 'users'));
+        const list = document.getElementById('shareUsersList');
+        list.innerHTML = '';
+        
+        usersSnap.forEach(doc => {
+            if (doc.id === currentUser.uid) return;
+            const u = doc.data(); u.id = doc.id;
+            
+            const div = document.createElement('div');
+            div.style.cssText = 'display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom:1px solid #222; cursor:pointer;';
+            const avatar = u.photoURL ? `<img src="${u.photoURL}" style="width:45px;height:45px;border-radius:50%;object-fit:cover;">` : `<div style="width:45px;height:45px;border-radius:50%;background:#444;display:flex;align-items:center;justify-content:center;font-weight:bold;">${(u.displayName||'A').charAt(0).toUpperCase()}</div>`;
+            const name = u.displayName || u.email?.split('@')[0] || 'Anonymous';
+            
+            div.innerHTML = `
+                <div style="display:flex; align-items:center; gap:15px;">${avatar}<span style="font-weight:bold; font-size:16px;">${name}</span></div>
+                <div class="share-checkbox" id="check-${u.id}" style="width:26px; height:26px; border:2px solid #555; border-radius:50%; display:flex; align-items:center; justify-content:center;"></div>
+            `;
+            
+            div.onclick = () => {
+                const check = document.getElementById(`check-${u.id}`);
+                if (selectedShareUsers.has(u.id)) {
+                    selectedShareUsers.delete(u.id);
+                    check.style.background = 'transparent'; check.style.borderColor = '#555'; check.innerHTML = '';
+                } else {
+                    selectedShareUsers.add(u.id);
+                    check.style.background = '#0cc0df'; check.style.borderColor = '#0cc0df'; check.innerHTML = '✓';
+                }
+                updateShareSendButton();
+            };
+            list.appendChild(div);
+        });
+    }
+
+    window.closeShareModal = () => document.getElementById('shareModal').style.display = 'none';
+
+    function updateShareSendButton() {
+        const btn = document.getElementById('sendShareBtn');
+        if (selectedShareUsers.size > 0) {
+            btn.style.display = 'block';
+            btn.textContent = `Send separately to ${selectedShareUsers.size} user${selectedShareUsers.size>1?'s':''}`;
+        } else {
+            btn.style.display = 'none';
+        }
+    }
+
+    window.sendSharedPost = async function() {
+        if (selectedShareUsers.size === 0) return;
+        const btn = document.getElementById('sendShareBtn');
+        btn.textContent = 'Sending...';
+        btn.disabled = true;
+
+        try {
+            const batch = writeBatch(db);
+            
+            for (const recipientId of selectedShareUsers) {
+                const chatId = [currentUser.uid, recipientId].sort().join('_');
+                const chatRef = doc(db, 'chats', chatId);
+                const messageRef = doc(collection(db, `chats/${chatId}/messages`));
+                
+                batch.set(chatRef, {
+                    users: [currentUser.uid, recipientId],
+                    lastMessage: "Shared a post 📷",
+                    lastMessageTime: serverTimestamp(),
+                    updatedAt: serverTimestamp()
+                }, { merge: true });
+
+                batch.set(messageRef, {
+                    text: "Shared a post 📷",
+                    imageUrl: currentSharePhotoUrl,
+                    senderId: currentUser.uid,
+                    recipientId: recipientId,
+                    timestamp: serverTimestamp(),
+                    read: false,
+                    type: 'image'
+                });
+            }
+            
+            await batch.commit();
+            showCustomToast("Sent successfully");
+        } catch (error) {
+            console.error("Error sharing post:", error);
+            showCustomToast("Failed to share");
+        }
+        
+        btn.disabled = false;
+        closeShareModal();
+    }
+
+    // Custom Toast Notification
+    function showCustomToast(message) {
+        const toast = document.createElement('div');
+        toast.textContent = message;
+        toast.style.cssText = 'position:fixed; left:50%; transform:translateX(-50%); background:rgba(12,192,223,0.95); color:white; padding:12px 24px; border-radius:25px; font-weight:bold; z-index:99999; box-shadow:0 4px 15px rgba(0,0,0,0.3); animation: fadeToast 3s forwards;';
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3500);
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // 🔥 STREAK SYSTEM
+    // ══════════════════════════════════════════════════════════════════════════
+
+    async function loadUserStreak() {
+        if (!currentUser) return;
+        try {
+            const userSnap = await getDoc(doc(db, 'users', currentUser.uid));
+            const data = userSnap.data() || {};
+            const streak = data.currentStreak || 0;
+            if (streak > 0) {
+                const badge = document.getElementById('headerStreakBadge');
+                const count = document.getElementById('headerStreakCount');
+                if (badge && count) {
+                    count.textContent = streak;
+                    badge.style.display = 'flex';
+                }
+            }
+        } catch (e) { /* silent */ }
+    }
+
+    window.showStreakCelebration = function() {
+        // Just show current streak info in a fun way
+        getDoc(doc(db, 'users', currentUser.uid)).then(snap => {
+            const data = snap.data() || {};
+            const streak = data.currentStreak || 0;
+            const longest = data.longestStreak || 0;
+            const title = data.lifetimeTitle || 'Novice 📷';
+            const cel = document.getElementById('streakCelebration');
+            document.getElementById('celebStreakNum').textContent = `🔥 ${streak}-Day Streak!`;
+            document.getElementById('celebStreakMsg').innerHTML = 
+                `Longest: ${longest} days · Title: <strong style="color:#0cc0df">${title}</strong>`;
+            cel.classList.add('active');
+        }).catch(() => {});
+    };
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // ⚡ FLASH CHALLENGE SYSTEM
+    // ══════════════════════════════════════════════════════════════════════════
+
+    let _activeFlashChallenge = null;
+    let _flashTimerInterval = null;
+
+    async function loadFlashChallenge() {
+        try {
+            const flashSnap = await getDoc(doc(db, 'flashChallenges', 'active'));
+            if (!flashSnap.exists()) return;
+            const data = flashSnap.data();
+            const now = Date.now();
+            const expiresAt = data.expiresAt?.toMillis?.() || 0;
+            if (expiresAt < now) return; // expired
+
+            // Check if user already dismissed it today
+            const dismissedDate = localStorage.getItem('flashDismissedDate');
+            if (dismissedDate === data.date) return;
+
+            _activeFlashChallenge = data;
+
+            // Show in banner
+            document.getElementById('flashChallengeBanner').style.display = 'block';
+            document.getElementById('flashChallengeDesc').textContent = data.description;
+            document.getElementById('flashChallengeBonus').textContent = `+${data.bonusPoints} bonus points if your upload matches!`;
+
+            // Show in upload modal
+            const uploadFlashInfo = document.getElementById('uploadFlashInfo');
+            const uploadFlashDesc = document.getElementById('uploadFlashDesc');
+            const uploadFlashBonus = document.getElementById('uploadFlashBonus');
+            if (uploadFlashInfo && uploadFlashDesc) {
+                uploadFlashInfo.style.display = 'block';
+                uploadFlashDesc.textContent = `📸 Capture: ${data.description}`;
+                uploadFlashBonus.textContent = `+${data.bonusPoints} bonus points on a successful match!`;
+            }
+
+            // Start countdown timer
+            if (_flashTimerInterval) clearInterval(_flashTimerInterval);
+            _flashTimerInterval = setInterval(() => {
+                const remaining = expiresAt - Date.now();
+                if (remaining <= 0) {
+                    clearInterval(_flashTimerInterval);
+                    document.getElementById('flashChallengeBanner').style.display = 'none';
+                    return;
+                }
+                const h = Math.floor(remaining / 3600000);
+                const m = String(Math.floor((remaining % 3600000) / 60000)).padStart(2, '0');
+                const s = String(Math.floor((remaining % 60000) / 1000)).padStart(2, '0');
+                const timerEl = document.getElementById('flashChallengeTimer');
+                if (timerEl) timerEl.textContent = h > 0 ? `${h}:${m}:${s}` : `${m}:${s}`;
+            }, 1000);
+
+        } catch (e) { /* silent — flash challenge is optional */ }
+    }
+
+    window.dismissFlashChallenge = function() {
+        if (_activeFlashChallenge) {
+            localStorage.setItem('flashDismissedDate', _activeFlashChallenge.date);
+        }
+        document.getElementById('flashChallengeBanner').style.display = 'none';
+        if (_flashTimerInterval) clearInterval(_flashTimerInterval);
+    };
+
+    window.highlightFlashChallenge = function() {
+        // Scroll to upload button and draw attention to it
+        document.getElementById('uploadBtn').style.animation = 'flashPulse 0.5s ease 3';
+        setTimeout(() => {
+            document.getElementById('uploadBtn').click();
+        }, 300);
+    };
+
+    /**
+     * Check if an uploaded image matches the Flash Challenge theme using Gemini
+     * Returns bonus points (0 if no match)
+     */
+    async function checkFlashChallengeMatch(imageDataUrl, challenge) {
+        if (!challenge) return 0;
+        try {
+            const { PhotoRatingSystem } = window;
+            const ratingSystem = new PhotoRatingSystem();
+            ratingSystem._validateKey();
+            
+            const base64 = imageDataUrl.includes('base64,') ? imageDataUrl.split('base64,')[1] : imageDataUrl;
+            const mimeType = ratingSystem.detectMimeType(imageDataUrl);
+            const prompt = `Does this photo match the theme: "${challenge.description}"? 
+Answer ONLY with YES or NO. Nothing else.`;
+
+            const res = await fetch(`${ratingSystem.apiEndpoint}?key=${ratingSystem.apiKey}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: prompt }, { inline_data: { mime_type: mimeType, data: base64 } }] }],
+                    generationConfig: { temperature: 0.1, maxOutputTokens: 5 }
+                })
+            });
+            const data = await res.json();
+            const answer = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim().toUpperCase() || '';
+            return answer.startsWith('YES') ? (challenge.bonusPoints || 0) : 0;
+        } catch (e) {
+            console.warn('Flash challenge check failed:', e.message);
+            return 0;
+        }
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // 🌅 GOLDEN HOUR SYSTEM
+    // ══════════════════════════════════════════════════════════════════════════
+
+    function isGoldenHour() {
+        const h = new Date().getHours();
+        return h >= 17 && h < 19;
+    }
+
+    function initGoldenHour() {
+        if (isGoldenHour()) {
+            document.getElementById('goldenHourBanner').style.display = 'block';
+        }
+        // Check every minute
+        setInterval(() => {
+            const banner = document.getElementById('goldenHourBanner');
+            if (banner) banner.style.display = isGoldenHour() ? 'block' : 'none';
+        }, 60000);
+    }
+
+
+    </script>
+    <script src="rating-algorithm.js"></script>
+    <script src="perceptual-hash.js"></script>
+    <script src="reverse-image-search.js"></script>  
+</body>
+</html>

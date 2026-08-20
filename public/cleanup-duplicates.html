@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clean Up Duplicate Accounts</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 15px;
+        }
+        button {
+            background: #25D366;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #1da851;
+        }
+        button:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+        #log {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .warning {
+            background: rgba(255, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #ff0000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧹 Clean Up Duplicate Accounts</h1>
+        
+        <div class="warning">
+            <strong>⚠️ WARNING:</strong> This script will permanently delete duplicate user accounts from your Firebase database. 
+            It will keep only the document where <code>docId === uid</code> for each user. Make sure you have a backup before proceeding!
+        </div>
+
+        <p><strong>What this script does:</strong></p>
+        <ul>
+            <li>Scans all documents in the 'users' collection</li>
+            <li>Identifies duplicate accounts (same UID with different document IDs)</li>
+            <li>Keeps the primary account (where document ID = UID)</li>
+            <li>Deletes all duplicate accounts</li>
+        </ul>
+
+        <button id="scanBtn" onclick="scanDuplicates()">📊 Scan for Duplicates</button>
+        <button id="cleanBtn" onclick="cleanupDuplicates()" disabled>🗑️ Delete Duplicates</button>
+        <button onclick="location.href='message.html'">← Back to Messages</button>
+
+        <div id="log"></div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore, collection, getDocs, deleteDoc, doc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyD3rQ3l-AlnJhCOCcA7_h2rQHfdxDz1Of0",
+            authDomain: "shutter-soul.firebaseapp.com",
+            projectId: "shutter-soul",
+            storageBucket: "shutter-soul.appspot.com",
+            messagingSenderId: "602126305011",
+            appId: "1:602126305011:web:c059836dae27a208e95986",
+            measurementId: "G-MSSSHJKN28",
+            databaseURL: "https://shutter-soul-default-rtdb.asia-southeast1.firebasedatabase.app" // ✅ FIX 8: Matches regional URL used by main app
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let duplicatesToDelete = [];
+        const logDiv = document.getElementById('log');
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'error' ? '#ff6b6b' : type === 'success' ? '#51cf66' : '#fff';
+            logDiv.innerHTML += `<div style="color: ${color}; margin: 5px 0;">[${timestamp}] ${message}</div>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+            console.log(message);
+        }
+
+        window.scanDuplicates = async function() {
+            const scanBtn = document.getElementById('scanBtn');
+            const cleanBtn = document.getElementById('cleanBtn');
+            
+            scanBtn.disabled = true;
+            cleanBtn.disabled = true;
+            logDiv.innerHTML = '';
+            duplicatesToDelete = [];
+
+            try {
+                log('🔍 Scanning for duplicate accounts...');
+                
+                const usersQuery = collection(db, 'users');
+                const snapshot = await getDocs(usersQuery);
+                
+                const usersByUID = new Map();
+                
+                // Group documents by UID
+                snapshot.forEach((doc) => {
+                    const userData = doc.data();
+                    const docId = doc.id;
+                    const uid = userData.uid || docId;
+                    
+                    if (!usersByUID.has(uid)) {
+                        usersByUID.set(uid, []);
+                    }
+                    
+                    usersByUID.get(uid).push({
+                        docId: docId,
+                        uid: uid,
+                        data: userData
+                    });
+                });
+
+                log(`📊 Found ${usersByUID.size} unique users`);
+                
+                // Find duplicates
+                let duplicateCount = 0;
+                
+                usersByUID.forEach((docs, uid) => {
+                    if (docs.length > 1) {
+                        duplicateCount++;
+                        log(`⚠️ User ${uid} has ${docs.length} documents`, 'error');
+                        
+                        // Find the primary document (where docId === uid)
+                        const primary = docs.find(d => d.docId === uid);
+                        
+                        docs.forEach(d => {
+                            if (d.docId !== uid) {
+                                log(`   → Will delete duplicate: ${d.docId} (${d.data.email || d.data.displayName || 'Unknown'})`);
+                                duplicatesToDelete.push(d.docId);
+                            } else {
+                                log(`   ✓ Keeping primary: ${d.docId} (${d.data.email || d.data.displayName || 'Unknown'})`, 'success');
+                            }
+                        });
+                    }
+                });
+
+                if (duplicatesToDelete.length === 0) {
+                    log('✅ No duplicates found! Database is clean.', 'success');
+                } else {
+                    log(`\n⚠️ Found ${duplicatesToDelete.length} duplicate documents to delete from ${duplicateCount} users`, 'error');
+                    log('Click "Delete Duplicates" to remove them.', 'error');
+                    cleanBtn.disabled = false;
+                }
+
+            } catch (error) {
+                log(`❌ Error scanning: ${error.message}`, 'error');
+            } finally {
+                scanBtn.disabled = false;
+            }
+        };
+
+        window.cleanupDuplicates = async function() {
+            if (duplicatesToDelete.length === 0) {
+                log('❌ No duplicates to delete. Run scan first.', 'error');
+                return;
+            }
+
+            if (!confirm(`This will permanently delete ${duplicatesToDelete.length} duplicate accounts. Are you sure?`)) {
+                return;
+            }
+
+            const cleanBtn = document.getElementById('cleanBtn');
+            cleanBtn.disabled = true;
+
+            try {
+                log(`\n🗑️ Starting deletion of ${duplicatesToDelete.length} duplicates...`);
+                
+                let deleted = 0;
+                let failed = 0;
+
+                for (const docId of duplicatesToDelete) {
+                    try {
+                        await deleteDoc(doc(db, 'users', docId));
+                        deleted++;
+                        log(`✓ Deleted: ${docId}`, 'success');
+                    } catch (error) {
+                        failed++;
+                        log(`✗ Failed to delete ${docId}: ${error.message}`, 'error');
+                    }
+                }
+
+                log(`\n✅ Cleanup complete!`, 'success');
+                log(`   Deleted: ${deleted}`, 'success');
+                if (failed > 0) {
+                    log(`   Failed: ${failed}`, 'error');
+                }
+
+                duplicatesToDelete = [];
+
+            } catch (error) {
+                log(`❌ Error during cleanup: ${error.message}`, 'error');
+            }
+        };
+
+        // Check authentication
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                alert('You must be logged in to use this tool');
+                window.location.href = 'login.html';
+            } else {
+                log(`👤 Logged in as: ${user.email}`, 'success');
+                log('Ready to scan for duplicates.');
+            }
+        });
+    </script>
+</body>
+</html>
